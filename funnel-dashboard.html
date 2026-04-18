@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Funnel - DataSystem</title>
+    <script>const savedTheme = localStorage.getItem('theme') || 'light'; document.documentElement.setAttribute('data-theme', savedTheme);</script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link href="https://unpkg.com/tabulator-tables@5.5.2/dist/css/tabulator.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+    <nav class="topbar">
+        <div class="topbar-left"><a href="index.html" class="topbar-brand"><i class="fa-solid fa-layer-group text-primary"></i><span class="brand-text">DataSystem</span></a><input type="text" class="search-box ms-4" placeholder="Cari PO / Instansi..."></div>
+        <div class="topbar-right"><button class="btn-icon" id="themeToggle"><i class="fa-solid fa-moon" id="themeIcon"></i></button><button class="btn-icon"><i class="fa-regular fa-bell"></i><span class="position-absolute top-25 start-75 translate-middle p-1 bg-danger border border-light rounded-circle"></span></button><img src="https://ui-avatars.com/api/?name=Admin+User&background=2c7be5&color=fff" class="rounded-circle" width="40" alt="Profile"></div>
+    </nav>
+	<nav class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+        <div class="sidebar-menu" id="sidebar-accordion">
+            <div class="sidebar-item-wrapper">
+                <a class="sidebar-nav-item" data-bs-toggle="collapse" href="#menuDashboard" role="button" aria-expanded="true">
+                    <div class="nav-item-left"><i class="fa-solid fa-chart-pie"></i><span class="nav-text">Dashboard</span></div>
+                    <i class="fa-solid fa-chevron-right nav-indicator"></i>
+                </a>
+                <div class="collapse show" id="menuDashboard" data-bs-parent="#sidebar-accordion">
+                    <ul class="sidebar-sub-menu">
+                        <li class="sidebar-popup-header">Dashboard</li>
+                        <li><a href="funnel-dashboard.html" class="sidebar-sub-item ajax-link active">Funnel</a></li>
+                        <li><a href="index.html" class="sidebar-sub-item ajax-link">Analitik Penjualan</a></li>
+                        <li><a href="logistik-sla.html" class="sidebar-sub-item ajax-link">Logistik & SLA</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="sidebar-item-wrapper mt-2">
+                <a class="sidebar-nav-item" data-bs-toggle="collapse" href="#menuInputData" role="button" aria-expanded="false">
+                    <div class="nav-item-left"><i class="fa-solid fa-folder-open"></i><span class="nav-text">Manajemen Data</span></div>
+                    <i class="fa-solid fa-chevron-right nav-indicator"></i>
+                </a>
+                <div class="collapse" id="menuInputData" data-bs-parent="#sidebar-accordion">
+                    <ul class="sidebar-sub-menu">
+                        <li class="sidebar-popup-header">Manajemen Data</li>
+                        <li><a href="funnel-input.html" class="sidebar-sub-item ajax-link">Funnel Baru</a></li>
+                        <li><a href="funnel-daftar.html" class="sidebar-sub-item ajax-link">Daftar Funnel</a></li>
+                        <li><a href="input-pesanan.html" class="sidebar-sub-item ajax-link">Pesanan Baru</a></li>
+                        <li><a href="data-pesanan.html" class="sidebar-sub-item ajax-link">Daftar Pesanan</a></li>
+                        <li><a href="database-master.html" class="sidebar-sub-item ajax-link">Database Master</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="sidebar-item-wrapper mt-2">
+                <a class="sidebar-nav-item" data-bs-toggle="collapse" href="#menuKalkulator" role="button" aria-expanded="false">
+                    <div class="nav-item-left"><i class="fa-solid fa-calculator"></i><span class="nav-text">Kalkulator</span></div>
+                    <i class="fa-solid fa-chevron-right nav-indicator"></i>
+                </a>
+                <div class="collapse" id="menuKalkulator" data-bs-parent="#sidebar-accordion">
+                    <ul class="sidebar-sub-menu">
+                        <li class="sidebar-popup-header">Kalkulator</li>
+                        <li><a href="kalkulator-b2b.html" class="sidebar-sub-item ajax-link">B2B (2 Layer)</a></li>
+                        <li><a href="kalkulator-distributor.html" class="sidebar-sub-item ajax-link">Distributor (3 Layer)</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="sidebar-bottom">
+        <button class="sidebar-toggle-btn" id="sidebarToggle"><i class="fa-solid fa-chevron-left"></i><span class="nav-text" id="toggleText">Kecilkan Tampilan</span></button>
+    </div>
+	</nav>
+    <div class="main-content" id="mainContent">
+<div class="container-fluid pb-4">
+
+<div id="funnelDashboardPage">
+  <div class="d-flex flex-column flex-xl-row justify-content-between align-items-xl-end gap-3 mb-4">
+    <div>
+      <h2 class="page-title">Dashboard Funnel</h2>
+      <p class="page-subtitle">Ringkasan nilai pipeline, conversion rate, aging, dan peluang yang perlu follow up.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      <a href="funnel-input.html" class="btn btn-primary"><i class="fa-solid fa-plus me-2"></i>Input Funnel</a>
+      <a href="funnel-daftar.html" class="btn btn-outline-primary bg-surface"><i class="fa-solid fa-table-list me-2"></i>Daftar Funnel</a>
+    </div>
+  </div>
+  <div class="row g-4 mb-4">
+    <div class="col-12 col-md-6 col-xl-3"><div class="phoenix-card h-100 dashboard-kpi-compact-card" data-bs-toggle="tooltip" data-bs-placement="top" title="Total Funnel Aktif"><div class="card-body-custom"><div class="d-flex justify-content-between align-items-start mb-3"><div class="icon-circle bg-primary-subtle text-primary"><i class="fa-solid fa-filter-circle-dollar"></i></div><span class="badge bg-primary-subtle text-primary border border-primary-subtle">Aktif</span></div><div class="dashboard-kpi-compact-value dashboard-kpi-count-value" id="funnel-kpi-active">0</div></div></div></div>
+    <div class="col-12 col-md-6 col-xl-3"><div class="phoenix-card h-100 dashboard-kpi-compact-card" data-bs-toggle="tooltip" data-bs-placement="top" title="Total Brutto Pipeline"><div class="card-body-custom"><div class="d-flex justify-content-between align-items-start mb-3"><div class="icon-circle bg-primary-subtle text-primary"><i class="fa-solid fa-money-bill-wave"></i></div><span class="badge bg-primary-subtle text-primary border border-primary-subtle">Brutto</span></div><div class="dashboard-kpi-compact-value dashboard-kpi-money-value" id="funnel-kpi-brutto">Rp 0</div></div></div></div>
+    <div class="col-12 col-md-6 col-xl-3"><div class="phoenix-card h-100 dashboard-kpi-compact-card" data-bs-toggle="tooltip" data-bs-placement="top" title="Total Netto Pipeline"><div class="card-body-custom"><div class="d-flex justify-content-between align-items-start mb-3"><div class="icon-circle bg-success-subtle text-success"><i class="fa-solid fa-sack-dollar"></i></div><span class="badge bg-success-subtle text-success border border-success-subtle">Netto</span></div><div class="dashboard-kpi-compact-value dashboard-kpi-money-value" id="funnel-kpi-netto">Rp 0</div></div></div></div>
+    <div class="col-12 col-md-6 col-xl-3"><div class="phoenix-card h-100 dashboard-kpi-compact-card" data-bs-toggle="tooltip" data-bs-placement="top" title="Weighted Pipeline"><div class="card-body-custom"><div class="d-flex justify-content-between align-items-start mb-3"><div class="icon-circle bg-warning-subtle text-warning"><i class="fa-solid fa-scale-balanced"></i></div><span class="badge bg-warning-subtle text-warning border border-warning-subtle">Weighted</span></div><div class="dashboard-kpi-compact-value dashboard-kpi-money-value" id="funnel-kpi-weighted">Rp 0</div></div></div></div>
+  </div>
+  <div class="row g-4 mb-4">
+    <div class="col-12 col-md-6 col-xl-3"><div class="phoenix-card h-100 dashboard-kpi-compact-card dashboard-kpi-secondary-card" data-bs-toggle="tooltip" data-bs-placement="top" title="Funnel Menang"><div class="card-body-custom"><div class="d-flex justify-content-between align-items-start mb-3"><div class="icon-circle bg-success-subtle text-success"><i class="fa-solid fa-trophy"></i></div><span class="badge bg-success-subtle text-success border border-success-subtle">Won</span></div><div class="dashboard-kpi-secondary-value dashboard-kpi-count-value" id="funnel-kpi-won">0</div></div></div></div>
+    <div class="col-12 col-md-6 col-xl-3"><div class="phoenix-card h-100 dashboard-kpi-compact-card dashboard-kpi-secondary-card" data-bs-toggle="tooltip" data-bs-placement="top" title="Funnel Kalah"><div class="card-body-custom"><div class="d-flex justify-content-between align-items-start mb-3"><div class="icon-circle bg-danger-subtle text-danger"><i class="fa-solid fa-circle-xmark"></i></div><span class="badge bg-danger-subtle text-danger border border-danger-subtle">Lost</span></div><div class="dashboard-kpi-secondary-value dashboard-kpi-count-value" id="funnel-kpi-lost">0</div></div></div></div>
+    <div class="col-12 col-md-6 col-xl-3"><div class="phoenix-card h-100 dashboard-kpi-compact-card dashboard-kpi-secondary-card" data-bs-toggle="tooltip" data-bs-placement="top" title="Conversion Rate"><div class="card-body-custom"><div class="d-flex justify-content-between align-items-start mb-3"><div class="icon-circle bg-info-subtle text-info"><i class="fa-solid fa-percent"></i></div><span class="badge bg-info-subtle text-info border border-info-subtle">Rate</span></div><div class="dashboard-kpi-secondary-value dashboard-kpi-percent-value" id="funnel-kpi-conv">0%</div></div></div></div>
+    <div class="col-12 col-md-6 col-xl-3"><div class="phoenix-card h-100 dashboard-kpi-compact-card dashboard-kpi-secondary-card" data-bs-toggle="tooltip" data-bs-placement="top" title="Follow Up Overdue"><div class="card-body-custom"><div class="d-flex justify-content-between align-items-start mb-3"><div class="icon-circle bg-danger-subtle text-danger"><i class="fa-solid fa-hourglass-end"></i></div><span class="badge bg-danger-subtle text-danger border border-danger-subtle">Overdue</span></div><div class="dashboard-kpi-secondary-value dashboard-kpi-count-value" id="funnel-kpi-overdue">0</div></div></div></div>
+  </div>
+  <div class="row g-4 mb-4">
+    <div class="col-12 col-md-6 col-xl-3"><div class="phoenix-card h-100 dashboard-kpi-compact-card dashboard-kpi-secondary-card" data-bs-toggle="tooltip" data-bs-placement="top" title="Rata-rata usia funnel aktif sejak input"><div class="card-body-custom"><div class="d-flex justify-content-between align-items-start mb-3"><div class="icon-circle bg-info-subtle text-info"><i class="fa-solid fa-timeline"></i></div><span class="badge bg-info-subtle text-info border border-info-subtle">Aging</span></div><div class="dashboard-kpi-secondary-value dashboard-kpi-count-value" id="funnel-kpi-aging">0 hari</div></div></div></div>
+    <div class="col-12 col-md-6 col-xl-3"><div class="phoenix-card h-100 dashboard-kpi-compact-card dashboard-kpi-secondary-card" data-bs-toggle="tooltip" data-bs-placement="top" title="Funnel aktif tanpa update lebih dari 14 hari"><div class="card-body-custom"><div class="d-flex justify-content-between align-items-start mb-3"><div class="icon-circle bg-warning-subtle text-warning"><i class="fa-solid fa-hourglass-half"></i></div><span class="badge bg-warning-subtle text-warning border border-warning-subtle">Stagnan</span></div><div class="dashboard-kpi-secondary-value dashboard-kpi-count-value" id="funnel-kpi-stagnant">0</div></div></div></div>
+    <div class="col-12 col-md-6 col-xl-3"><div class="phoenix-card h-100 dashboard-kpi-compact-card dashboard-kpi-secondary-card" data-bs-toggle="tooltip" data-bs-placement="top" title="Nilai netto funnel stagnan"><div class="card-body-custom"><div class="d-flex justify-content-between align-items-start mb-3"><div class="icon-circle bg-warning-subtle text-warning"><i class="fa-solid fa-money-bill-trend-up"></i></div><span class="badge bg-warning-subtle text-warning border border-warning-subtle">At Risk</span></div><div class="dashboard-kpi-secondary-value dashboard-kpi-money-value" id="funnel-kpi-stagnant-value">Rp 0</div></div></div></div>
+    <div class="col-12 col-md-6 col-xl-3"><div class="phoenix-card h-100 dashboard-kpi-compact-card dashboard-kpi-secondary-card" data-bs-toggle="tooltip" data-bs-placement="top" title="PIC dengan win rate terbaik"><div class="card-body-custom"><div class="d-flex justify-content-between align-items-start mb-3"><div class="icon-circle bg-success-subtle text-success"><i class="fa-solid fa-user-check"></i></div><span class="badge bg-success-subtle text-success border border-success-subtle">Best Owner</span></div><div class="dashboard-kpi-secondary-value" id="funnel-kpi-best-owner" style="font-size:1rem; line-height:1.35;">-</div></div></div></div>
+  </div>
+  <div class="row g-4 mb-4">
+    <div class="col-12 col-xl-4"><div class="phoenix-card h-100"><div class="card-header-custom"><h5><i class="fa-solid fa-chart-pie me-2 text-primary"></i>Pipeline by Stage</h5></div><div class="card-body-custom"><div style="height:300px;"><canvas id="funnelStageChart"></canvas></div></div></div></div>
+    <div class="col-12 col-xl-4"><div class="phoenix-card h-100"><div class="card-header-custom"><h5><i class="fa-solid fa-map-location-dot me-2 text-primary"></i>Nilai Pipeline per Wilayah</h5></div><div class="card-body-custom"><div style="height:300px;"><canvas id="funnelRegionChart"></canvas></div></div></div></div>
+    <div class="col-12 col-xl-4"><div class="phoenix-card h-100"><div class="card-header-custom"><h5><i class="fa-solid fa-scale-balanced me-2 text-primary"></i>Menang vs Kalah</h5></div><div class="card-body-custom"><div style="height:300px;"><canvas id="funnelOutcomeChart"></canvas></div></div></div></div>
+  </div>
+  <div class="row g-4 mb-4">
+    <div class="col-12 col-xl-4"><div class="phoenix-card h-100"><div class="card-header-custom"><h5><i class="fa-solid fa-chart-column me-2 text-primary"></i>Aging Funnel per Tahap</h5></div><div class="card-body-custom"><div style="height:300px;"><canvas id="funnelAgingStageChart"></canvas></div></div></div></div>
+    <div class="col-12 col-xl-4"><div class="phoenix-card h-100"><div class="card-header-custom d-flex justify-content-between align-items-center"><h5><i class="fa-solid fa-medal me-2 text-primary"></i>Win Rate per PIC</h5><span class="badge bg-primary-subtle text-primary border border-primary-subtle">Closed funnel</span></div><div class="card-body-custom"><div id="funnelWinrateOwnerTable"></div></div></div></div>
+    <div class="col-12 col-xl-4"><div class="phoenix-card h-100"><div class="card-header-custom d-flex justify-content-between align-items-center"><h5><i class="fa-solid fa-bell me-2 text-primary"></i>Pipeline Stagnan Bernilai Besar</h5><span class="badge bg-warning-subtle text-warning border border-warning-subtle">> 14 hari</span></div><div class="card-body-custom"><div id="funnelTopStuckTable"></div></div></div></div>
+  </div>
+  <div class="row g-4 mb-4">
+    <div class="col-12 col-xl-4"><div class="phoenix-card h-100"><div class="card-header-custom d-flex justify-content-between align-items-center"><h5><i class="fa-solid fa-bullseye me-2 text-primary"></i>Forecast Closing</h5><span class="badge bg-success-subtle text-success border border-success-subtle">30 / 60 / 90 hari</span></div><div class="card-body-custom"><div style="height:300px;"><canvas id="funnelClosingForecastChart"></canvas></div></div></div></div>
+    <div class="col-12 col-xl-4"><div class="phoenix-card h-100"><div class="card-header-custom d-flex justify-content-between align-items-center"><h5><i class="fa-solid fa-users-gear me-2 text-primary"></i>Owner Performance</h5><span class="badge bg-primary-subtle text-primary border border-primary-subtle">Pipeline aktif</span></div><div class="card-body-custom"><div id="funnelOwnerPerformanceTable"></div></div></div></div>
+    <div class="col-12 col-xl-4"><div class="phoenix-card h-100"><div class="card-header-custom d-flex justify-content-between align-items-center"><h5><i class="fa-solid fa-tags me-2 text-primary"></i>Reason Lost Taxonomy</h5><span class="badge bg-danger-subtle text-danger border border-danger-subtle">Closed lost</span></div><div class="card-body-custom"><div id="funnelLostReasonTable"></div></div></div></div>
+  </div>
+  <div class="row g-4 mb-4">
+    <div class="col-12 col-xl-4"><div class="phoenix-card h-100"><div class="card-header-custom d-flex justify-content-between align-items-center"><h5><i class="fa-solid fa-crosshairs me-2 text-primary"></i>Forecast Accuracy Closing</h5><span class="badge bg-info-subtle text-info border border-info-subtle">Won funnel</span></div><div class="card-body-custom"><div style="height:300px;"><canvas id="funnelForecastAccuracyChart"></canvas></div></div></div></div>
+    <div class="col-12 col-xl-8"><div class="phoenix-card h-100"><div class="card-header-custom d-flex justify-content-between align-items-center"><h5><i class="fa-solid fa-table-list me-2 text-primary"></i>Forecast Accuracy Detail</h5><span class="badge bg-primary-subtle text-primary border border-primary-subtle">Target vs actual closing</span></div><div class="card-body-custom"><div id="funnelForecastAccuracyTable"></div></div></div></div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-12 col-xl-6"><div class="phoenix-card"><div class="card-header-custom d-flex justify-content-between align-items-center"><h5><i class="fa-solid fa-phone-volume me-2 text-primary"></i>Funnel yang Perlu Follow Up</h5><a class="btn btn-sm btn-outline-primary bg-surface" href="funnel-daftar.html">Lihat Semua</a></div><div class="card-body-custom"><div id="funnel-followup-grid"></div></div></div></div>
+    <div class="col-12 col-xl-6"><div class="phoenix-card"><div class="card-header-custom d-flex justify-content-between align-items-center"><h5><i class="fa-solid fa-clock me-2 text-primary"></i>Funnel Stagnan</h5><a class="btn btn-sm btn-outline-primary bg-surface" href="funnel-daftar.html">Lihat Semua</a></div><div class="card-body-custom"><div id="funnel-stagnant-grid"></div></div></div></div>
+  </div>
+</div>
+
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://unpkg.com/tabulator-tables@5.5.2/dist/js/tabulator.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="assets/js/script.js"></script>
+<script src="assets/js/shared/feedback-ui.js"></script>
+<script src="assets/js/shared/api-bridge.js"></script>
+<script src="assets/js/shared/auth-ui.js"></script>
+<script src="assets/js/shared/ops-backup.js"></script>
+<script src="assets/js/shared/master-normalizer.js"></script>
+<script src="assets/js/pages/funnel-pipeline.js"></script>
+    <script src="assets/js/data/pesanan-dashboard-data.js"></script>
+    <script src="assets/js/pages/dashboard-data-bridge.js"></script>
+    <script src="assets/js/pages/dashboard-operasional-pesanan.js"></script>
+<script src="assets/js/shared/ui-polish.js"></script>
+</body>
+</html>

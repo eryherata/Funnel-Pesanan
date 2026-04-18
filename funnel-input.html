@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Funnel - DataSystem</title>
+    <script>const savedTheme = localStorage.getItem('theme') || 'light'; document.documentElement.setAttribute('data-theme', savedTheme);</script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link href="https://unpkg.com/tabulator-tables@5.5.2/dist/css/tabulator.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+    <nav class="topbar">
+        <div class="topbar-left"><a href="index.html" class="topbar-brand"><i class="fa-solid fa-layer-group text-primary"></i><span class="brand-text">DataSystem</span></a><input type="text" class="search-box ms-4" placeholder="Cari PO / Instansi..."></div>
+        <div class="topbar-right"><button class="btn-icon" id="themeToggle"><i class="fa-solid fa-moon" id="themeIcon"></i></button><button class="btn-icon"><i class="fa-regular fa-bell"></i><span class="position-absolute top-25 start-75 translate-middle p-1 bg-danger border border-light rounded-circle"></span></button><img src="https://ui-avatars.com/api/?name=Admin+User&background=2c7be5&color=fff" class="rounded-circle" width="40" alt="Profile"></div>
+    </nav>
+	<nav class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+        <div class="sidebar-menu" id="sidebar-accordion">
+            <div class="sidebar-item-wrapper">
+                <a class="sidebar-nav-item" data-bs-toggle="collapse" href="#menuDashboard" role="button" aria-expanded="false">
+                    <div class="nav-item-left"><i class="fa-solid fa-chart-pie"></i><span class="nav-text">Dashboard</span></div>
+                    <i class="fa-solid fa-chevron-right nav-indicator"></i>
+                </a>
+                <div class="collapse" id="menuDashboard" data-bs-parent="#sidebar-accordion">
+                    <ul class="sidebar-sub-menu">
+                        <li class="sidebar-popup-header">Dashboard</li>
+                        <li><a href="funnel-dashboard.html" class="sidebar-sub-item ajax-link">Funnel</a></li>
+                        <li><a href="index.html" class="sidebar-sub-item ajax-link">Analitik Penjualan</a></li>
+                        <li><a href="logistik-sla.html" class="sidebar-sub-item ajax-link">Logistik & SLA</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="sidebar-item-wrapper mt-2">
+                <a class="sidebar-nav-item" data-bs-toggle="collapse" href="#menuInputData" role="button" aria-expanded="true">
+                    <div class="nav-item-left"><i class="fa-solid fa-folder-open"></i><span class="nav-text">Manajemen Data</span></div>
+                    <i class="fa-solid fa-chevron-right nav-indicator"></i>
+                </a>
+                <div class="collapse show" id="menuInputData" data-bs-parent="#sidebar-accordion">
+                    <ul class="sidebar-sub-menu">
+                        <li class="sidebar-popup-header">Manajemen Data</li>
+                        <li><a href="funnel-input.html" class="sidebar-sub-item ajax-link active">Funnel Baru</a></li>
+                        <li><a href="funnel-daftar.html" class="sidebar-sub-item ajax-link">Daftar Funnel</a></li>
+                        <li><a href="input-pesanan.html" class="sidebar-sub-item ajax-link">Pesanan Baru</a></li>
+                        <li><a href="data-pesanan.html" class="sidebar-sub-item ajax-link">Daftar Pesanan</a></li>
+                        <li><a href="database-master.html" class="sidebar-sub-item ajax-link">Database Master</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="sidebar-item-wrapper mt-2">
+                <a class="sidebar-nav-item" data-bs-toggle="collapse" href="#menuKalkulator" role="button" aria-expanded="false">
+                    <div class="nav-item-left"><i class="fa-solid fa-calculator"></i><span class="nav-text">Kalkulator</span></div>
+                    <i class="fa-solid fa-chevron-right nav-indicator"></i>
+                </a>
+                <div class="collapse" id="menuKalkulator" data-bs-parent="#sidebar-accordion">
+                    <ul class="sidebar-sub-menu">
+                        <li class="sidebar-popup-header">Kalkulator</li>
+                        <li><a href="kalkulator-b2b.html" class="sidebar-sub-item ajax-link">B2B (2 Layer)</a></li>
+                        <li><a href="kalkulator-distributor.html" class="sidebar-sub-item ajax-link">Distributor (3 Layer)</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="sidebar-bottom">
+        <button class="sidebar-toggle-btn" id="sidebarToggle"><i class="fa-solid fa-chevron-left"></i><span class="nav-text" id="toggleText">Kecilkan Tampilan</span></button>
+    </div>
+	</nav>
+    <div class="main-content" id="mainContent">
+<div class="container-fluid pb-4">
+
+<div id="funnelInputPage">
+  <div class="d-flex flex-column flex-xl-row justify-content-between align-items-xl-end gap-3 mb-4">
+    <div>
+      <h2 class="page-title">Input Funnel</h2>
+      <p class="page-subtitle">Catat peluang baru, nilai estimasi, follow up, dan target closing sebelum dikonversi ke pesanan.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      <a href="funnel-dashboard.html" class="btn btn-outline-primary bg-surface"><i class="fa-solid fa-chart-pie me-2"></i>Dashboard Funnel</a>
+      <a href="funnel-daftar.html" class="btn btn-outline-primary bg-surface"><i class="fa-solid fa-table-list me-2"></i>Daftar Funnel</a>
+    </div>
+  </div>
+  <form id="funnelForm">
+    <div class="row g-3 mb-3">
+      <div class="col-md-6"><div class="phoenix-card h-100 mb-0"><div class="card-header-custom"><h5><i class="fa-solid fa-building-columns me-2 text-primary"></i>1. Informasi Dasar</h5></div><div class="card-body-custom row g-3">
+        <div class="col-6"><label class="form-label">Tanggal Input</label><input type="date" class="form-control" id="funnel-input-date"></div>
+        <div class="col-6"><label class="form-label">Sumber Peluang</label><input type="text" class="form-control" id="funnel-source" placeholder="LPSE / Relasi / Principal"></div>
+        <div class="col-12"><label class="form-label">Nama Pengadaan</label><input type="text" class="form-control" id="funnel-name" placeholder="Nama peluang / pengadaan"></div>
+        <div class="col-6"><label class="form-label">Kode RUP</label><input type="text" class="form-control" id="funnel-rup"></div>
+        <div class="col-6"><label class="form-label">Wilayah</label><select class="form-select searchable-dropdown" id="funnel-wilayah"><option value="">Pilih Wilayah</option><option>DKI Jakarta</option><option>Jawa Barat</option><option>Jawa Tengah</option><option>Jawa Timur</option><option>Sumatera Utara</option><option>Sumatera Barat</option><option>Kalimantan Timur</option><option>Sulawesi Selatan</option></select></div>
+        <div class="col-6"><label class="form-label">Kabupaten / Kota</label><select class="form-select searchable-dropdown" id="funnel-kabkota"><option value="">Pilih Kabupaten / Kota</option></select></div>
+        <div class="col-12"><label class="form-label">Instansi / Dinas</label><select class="form-select searchable-dropdown" id="funnel-instansi"><option value="">Pilih Instansi / Dinas</option></select></div>
+        <div class="col-12"><label class="form-label">Satuan Kerja</label><select class="form-select searchable-dropdown" id="funnel-satker"><option value="">Pilih Satuan Kerja</option></select></div>
+      </div></div></div>
+      <div class="col-md-6"><div class="phoenix-card h-100 mb-0"><div class="card-header-custom"><h5><i class="fa-solid fa-network-wired me-2 text-primary"></i>2. Pihak Terkait</h5></div><div class="card-body-custom row g-3">
+        <div class="col-6"><label class="form-label">Principal</label><select class="form-select searchable-dropdown" id="funnel-principal"><option value="">Pilih Principal</option><option>Asus</option><option>Epson</option><option>HP</option><option>Lenovo</option><option>Canon</option><option>Acer</option></select></div>
+        <div class="col-6"><label class="form-label">Pemasok</label><select class="form-select searchable-dropdown" id="funnel-pemasok"><option value="">Pilih Pemasok</option><option>PT Pemasok Nusantara</option><option>PT Graha Print</option><option>PT Sumber Digital</option><option>PT Mitra Teknologi</option></select></div>
+        <div class="col-6"><label class="form-label">Distributor</label><select class="form-select searchable-dropdown" id="funnel-distributor"><option value="">Pilih Distributor</option><option>PT Distribusi Makmur</option><option>PT Maju Bersama</option><option>PT Sentra Niaga</option></select></div>
+        <div class="col-6"><label class="form-label">Pelaksana</label><select class="form-select searchable-dropdown" id="funnel-pelaksana"><option value="">Pilih Pelaksana</option><option>CV Cakra Niaga</option><option>CV Sejahtera Medika</option><option>CV Sinar Pendidikan</option></select></div>
+        <div class="col-6"><label class="form-label">PIC Omset</label><select class="form-select searchable-dropdown" id="funnel-pic"><option value="">Pilih PIC Omset</option><option>Lina</option><option>Raka</option><option>Bimo</option><option>Tyo</option></select></div>
+        <div class="col-6"><label class="form-label">Penggarap</label><select class="form-select searchable-dropdown" id="funnel-penggarap"><option value="">Pilih Penggarap</option><option>Bimo</option><option>Tyo</option><option>Sari</option><option>Arif</option></select></div>
+      </div></div></div>
+      <div class="col-md-6"><div class="phoenix-card h-100 mb-0"><div class="card-header-custom"><h5><i class="fa-solid fa-sack-dollar me-2 text-primary"></i>3. Nilai Peluang</h5></div><div class="card-body-custom row g-3">
+        <div class="col-6"><label class="form-label">Estimasi Brutto</label><input type="text" class="form-control format-uang" id="funnel-brutto" placeholder="Rp 0"></div>
+        <div class="col-6"><label class="form-label">Estimasi Netto</label><input type="text" class="form-control format-uang" id="funnel-netto" placeholder="Rp 0"></div>
+        <div class="col-6"><label class="form-label">Estimasi Negosiasi</label><input type="text" class="form-control format-uang" id="funnel-nego" placeholder="Rp 0"></div>
+        <div class="col-6"><label class="form-label">Estimasi Margin (%)</label><input type="number" class="form-control" id="funnel-margin" step="0.01" placeholder="0.00"></div>
+        <div class="col-6"><label class="form-label">Estimasi Qty</label><input type="text" class="form-control" id="funnel-qty" placeholder="0"></div>
+      </div></div></div>
+      <div class="col-md-6"><div class="phoenix-card h-100 mb-0"><div class="card-header-custom"><h5><i class="fa-solid fa-bars-progress me-2 text-primary"></i>4. Tahap & Follow Up</h5></div><div class="card-body-custom row g-3">
+        <div class="col-6"><label class="form-label">Tahap Funnel</label><select class="form-select" id="funnel-stage"><option>Lead Masuk</option><option>Kualifikasi</option><option>Tayang / Penawaran</option><option>Negosiasi</option><option>Menunggu Keputusan</option><option>Menang / Deal</option><option>Kalah / Batal</option></select></div>
+        <div class="col-6"><label class="form-label">Probabilitas Deal (%)</label><input type="number" class="form-control" id="funnel-probability" min="0" max="100" value="50"></div>
+        <div class="col-6"><label class="form-label">Estimasi Closing</label><input type="date" class="form-control" id="funnel-closing"></div>
+        <div class="col-6"><label class="form-label">Follow Up Berikutnya</label><input type="date" class="form-control" id="funnel-followup-date"></div>
+        <div class="col-6"><label class="form-label">Prioritas</label><select class="form-select" id="funnel-priority"><option>Normal</option><option>Perlu Follow Up</option><option>Tinggi</option><option>Kritis</option></select></div>
+        <div class="col-12"><label class="form-label">Next Action</label><input type="text" class="form-control" id="funnel-next-action" placeholder="Langkah tindak lanjut berikutnya"></div>
+      </div></div></div>
+    </div>
+    <div class="phoenix-card mb-0"><div class="card-header-custom"><h5><i class="fa-solid fa-circle-exclamation me-2 text-primary"></i>5. Kendala & Catatan</h5></div><div class="card-body-custom row g-3">
+      <div class="col-md-6"><label class="form-label">Risiko / Kendala</label><textarea class="form-control" rows="5" id="funnel-risk" placeholder="Tuliskan risiko utama, kompetitor, budget, atau hambatan lain..."></textarea></div>
+      <div class="col-md-6"><label class="form-label">Catatan Tambahan</label><textarea class="form-control" rows="5" id="funnel-notes" placeholder="Catatan umum, kebutuhan user, atau info penting lain..."></textarea></div>
+    </div></div>
+  </form>
+  <div class="action-footer mt-4"><button type="button" class="btn btn-custom-outline" onclick="window.DataSystemNavigation?.navigate?.('funnel-daftar.html') || (window.location.href='funnel-daftar.html'); return false;">Batalkan</button><button type="button" class="btn btn-outline-primary" id="btnSaveFunnelDraft"><i class="fa-solid fa-floppy-disk me-2"></i>Simpan Funnel</button><button type="button" class="btn btn-primary" id="btnSaveFunnelOpen"><i class="fa-solid fa-check me-2"></i>Simpan & Buka Daftar</button></div>
+</div>
+
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://unpkg.com/tabulator-tables@5.5.2/dist/js/tabulator.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="assets/js/shared/feedback-ui.js"></script>
+<script src="assets/js/shared/api-bridge.js"></script>
+    <script src="assets/js/shared/auth-ui.js"></script>
+    <script src="assets/js/shared/ops-backup.js"></script>
+<script src="assets/js/shared/master-normalizer.js"></script>
+<script src="assets/js/shared/master-data-service.js"></script>
+<script src="assets/js/script.js"></script>
+<script src="assets/js/shared/status-dictionary.js"></script>
+<script src="assets/js/shared/order-workflow.js"></script>
+<script src="assets/js/pages/funnel-pipeline.js"></script>
+    <script src="assets/js/data/pesanan-dashboard-data.js"></script>
+    <script src="assets/js/pages/dashboard-data-bridge.js"></script>
+    <script src="assets/js/pages/dashboard-operasional-pesanan.js"></script>
+<script src="assets/js/shared/ui-polish.js"></script>
+</body>
+</html>

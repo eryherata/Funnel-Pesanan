@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Operasional Pesanan - DataSystem</title>
+    <script>const savedTheme = localStorage.getItem('theme') || 'light'; document.documentElement.setAttribute('data-theme', savedTheme);</script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link href="https://unpkg.com/tabulator-tables@5.5.2/dist/css/tabulator.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+    <nav class="topbar">
+        <div class="topbar-left"><a href="index.html" class="topbar-brand"><i class="fa-solid fa-layer-group text-primary"></i><span class="brand-text">DataSystem</span></a><input type="text" class="search-box ms-4" placeholder="Cari PO / Instansi..."></div>
+        <div class="topbar-right"><button class="btn-icon" id="themeToggle"><i class="fa-solid fa-moon" id="themeIcon"></i></button><button class="btn-icon"><i class="fa-regular fa-bell"></i><span class="position-absolute top-25 start-75 translate-middle p-1 bg-danger border border-light rounded-circle"></span></button><img src="https://ui-avatars.com/api/?name=Admin+User&background=2c7be5&color=fff" class="rounded-circle" width="40" alt="Profile"></div>
+    </nav>
+	<nav class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+        <div class="sidebar-menu" id="sidebar-accordion">
+            <div class="sidebar-item-wrapper">
+                <a class="sidebar-nav-item" data-bs-toggle="collapse" href="#menuDashboard" role="button" aria-expanded="true">
+                    <div class="nav-item-left"><i class="fa-solid fa-chart-pie"></i><span class="nav-text">Dashboard</span></div>
+                    <i class="fa-solid fa-chevron-right nav-indicator"></i>
+                </a>
+                <div class="collapse show" id="menuDashboard" data-bs-parent="#sidebar-accordion">
+                    <ul class="sidebar-sub-menu">
+                        <li class="sidebar-popup-header">Dashboard</li>
+                        <li><a href="index.html" class="sidebar-sub-item ajax-link">Analitik Penjualan</a></li>
+                        <li><a href="logistik-sla.html" class="sidebar-sub-item ajax-link">Logistik & SLA</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="sidebar-item-wrapper mt-2">
+                <a class="sidebar-nav-item" data-bs-toggle="collapse" href="#menuInputData" role="button" aria-expanded="false">
+                    <div class="nav-item-left"><i class="fa-solid fa-folder-open"></i><span class="nav-text">Manajemen Data</span></div>
+                    <i class="fa-solid fa-chevron-right nav-indicator"></i>
+                </a>
+                <div class="collapse" id="menuInputData" data-bs-parent="#sidebar-accordion">
+                    <ul class="sidebar-sub-menu">
+                        <li class="sidebar-popup-header">Manajemen Data</li>
+                        <li><a href="input-pesanan.html" class="sidebar-sub-item ajax-link">Pesanan Baru</a></li>
+                        <li><a href="data-pesanan.html" class="sidebar-sub-item ajax-link">Daftar Pesanan</a></li>
+                        <li><a href="database-master.html" class="sidebar-sub-item ajax-link">Database Master</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="sidebar-item-wrapper mt-2">
+                <a class="sidebar-nav-item" data-bs-toggle="collapse" href="#menuKalkulator" role="button" aria-expanded="false">
+                    <div class="nav-item-left"><i class="fa-solid fa-calculator"></i><span class="nav-text">Kalkulator</span></div>
+                    <i class="fa-solid fa-chevron-right nav-indicator"></i>
+                </a>
+                <div class="collapse" id="menuKalkulator" data-bs-parent="#sidebar-accordion">
+                    <ul class="sidebar-sub-menu">
+                        <li class="sidebar-popup-header">Kalkulator</li>
+                        <li><a href="kalkulator-b2b.html" class="sidebar-sub-item ajax-link">B2B (2 Layer)</a></li>
+                        <li><a href="kalkulator-distributor.html" class="sidebar-sub-item ajax-link">Distributor (3 Layer)</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="sidebar-bottom">
+        <button class="sidebar-toggle-btn" id="sidebarToggle"><i class="fa-solid fa-chevron-left"></i><span class="nav-text" id="toggleText">Kecilkan Tampilan</span></button>
+    </div>
+	</nav>
+    <div class="main-content" id="mainContent">
+  <div class="container-fluid pb-4">
+
+    <div class="d-flex flex-column flex-xl-row justify-content-between align-items-xl-end gap-3 mb-4">
+      <div>
+        <h2 class="page-title">Dashboard Operasional Pesanan</h2>
+        <p class="page-subtitle">Ringkasan KPI transaksi, progres order, kelengkapan data, dan tindak lanjut pesanan aktif.</p>
+      </div>
+      <div class="d-flex flex-wrap gap-2">
+        <button class="btn btn-primary" id="ops-export-top">
+          <i class="fa-solid fa-download me-2"></i>Export Laporan
+        </button>
+      </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+      <div class="col-12 col-md-6 col-xl-2">
+        <div class="phoenix-card h-100 dashboard-kpi-compact-card" data-bs-toggle="tooltip" data-bs-placement="top" title="Total Pesanan">
+          <div class="card-body-custom">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div class="icon-circle bg-primary-subtle text-primary"><i class="fa-solid fa-file-invoice"></i></div>
+              <span class="badge bg-primary-subtle text-primary border border-primary-subtle">PO</span>
+            </div>
+            <div class="dashboard-kpi-compact-value dashboard-kpi-count-value" id="ops-kpi-total-orders">0</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 col-xl-2">
+        <div class="phoenix-card h-100 dashboard-kpi-compact-card" data-bs-toggle="tooltip" data-bs-placement="top" title="Total Brutto Transaksi">
+          <div class="card-body-custom">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div class="icon-circle bg-primary-subtle text-primary"><i class="fa-solid fa-money-bill-wave"></i></div>
+              <span class="badge bg-primary-subtle text-primary border border-primary-subtle">Brutto</span>
+            </div>
+            <div class="dashboard-kpi-compact-value dashboard-kpi-money-value" id="ops-kpi-brutto">Rp 0</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 col-xl-2">
+        <div class="phoenix-card h-100 dashboard-kpi-compact-card" data-bs-toggle="tooltip" data-bs-placement="top" title="Total Netto Transaksi">
+          <div class="card-body-custom">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div class="icon-circle bg-success-subtle text-success"><i class="fa-solid fa-sack-dollar"></i></div>
+              <span class="badge bg-success-subtle text-success border border-success-subtle">Netto</span>
+            </div>
+            <div class="dashboard-kpi-compact-value dashboard-kpi-money-value" id="ops-kpi-netto">Rp 0</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 col-xl-2">
+        <div class="phoenix-card h-100 dashboard-kpi-compact-card" data-bs-toggle="tooltip" data-bs-placement="top" title="Total Nilai Negosiasi">
+          <div class="card-body-custom">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div class="icon-circle bg-warning-subtle text-warning"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+              <span class="badge bg-warning-subtle text-warning border border-warning-subtle">Nego</span>
+            </div>
+            <div class="dashboard-kpi-compact-value dashboard-kpi-money-value" id="ops-kpi-nego">Rp 0</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 col-xl-2">
+        <div class="phoenix-card h-100 dashboard-kpi-compact-card" data-bs-toggle="tooltip" data-bs-placement="top" title="Margin Bersih">
+          <div class="card-body-custom">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div class="icon-circle bg-success-subtle text-success"><i class="fa-solid fa-chart-line"></i></div>
+              <span class="badge bg-success-subtle text-success border border-success-subtle">Profit</span>
+            </div>
+            <div class="dashboard-kpi-compact-value dashboard-kpi-percent-value" id="ops-kpi-margin">0%</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 col-xl-2">
+        <div class="phoenix-card h-100 dashboard-kpi-compact-card" data-bs-toggle="tooltip" data-bs-placement="top" title="Outstanding Order">
+          <div class="card-body-custom">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div class="icon-circle bg-danger-subtle text-danger"><i class="fa-solid fa-clock-rotate-left"></i></div>
+              <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Aktif</span>
+            </div>
+            <div class="dashboard-kpi-compact-value dashboard-kpi-count-value" id="ops-kpi-outstanding">0</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+      <div class="col-12 col-md-6 col-xl-3">
+        <div class="phoenix-card h-100 dashboard-kpi-compact-card dashboard-kpi-secondary-card" data-bs-toggle="tooltip" data-bs-placement="top" title="Pesanan Baru">
+          <div class="card-body-custom">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div class="icon-circle bg-primary-subtle text-primary"><i class="fa-solid fa-plus"></i></div>
+              <span class="badge bg-primary-subtle text-primary border border-primary-subtle">Baru</span>
+            </div>
+            <div class="dashboard-kpi-secondary-value dashboard-kpi-count-value" id="ops-kpi-new">0</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 col-xl-3">
+        <div class="phoenix-card h-100 dashboard-kpi-compact-card dashboard-kpi-secondary-card" data-bs-toggle="tooltip" data-bs-placement="top" title="Sedang Diproses">
+          <div class="card-body-custom">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div class="icon-circle bg-warning-subtle text-warning"><i class="fa-solid fa-gears"></i></div>
+              <span class="badge bg-warning-subtle text-warning border border-warning-subtle">Proses</span>
+            </div>
+            <div class="dashboard-kpi-secondary-value dashboard-kpi-count-value" id="ops-kpi-processing">0</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 col-xl-3">
+        <div class="phoenix-card h-100 dashboard-kpi-compact-card dashboard-kpi-secondary-card" data-bs-toggle="tooltip" data-bs-placement="top" title="Siap Kirim">
+          <div class="card-body-custom">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div class="icon-circle bg-success-subtle text-success"><i class="fa-solid fa-truck-ramp-box"></i></div>
+              <span class="badge bg-success-subtle text-success border border-success-subtle">Ready</span>
+            </div>
+            <div class="dashboard-kpi-secondary-value dashboard-kpi-count-value" id="ops-kpi-ready">0</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 col-xl-3">
+        <div class="phoenix-card h-100 dashboard-kpi-compact-card dashboard-kpi-secondary-card" data-bs-toggle="tooltip" data-bs-placement="top" title="Bermasalah">
+          <div class="card-body-custom">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div class="icon-circle bg-danger-subtle text-danger"><i class="fa-solid fa-triangle-exclamation"></i></div>
+              <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Risiko</span>
+            </div>
+            <div class="dashboard-kpi-secondary-value dashboard-kpi-count-value" id="ops-kpi-problem">0</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+      <div class="col-12 col-md-6 col-xl-3">
+        <div class="phoenix-card h-100 dashboard-kpi-compact-card dashboard-kpi-secondary-card" data-bs-toggle="tooltip" data-bs-placement="top" title="Rata-rata usia order aktif sejak PO dibuat">
+          <div class="card-body-custom">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div class="icon-circle bg-info-subtle text-info"><i class="fa-solid fa-timeline"></i></div>
+              <span class="badge bg-info-subtle text-info border border-info-subtle">Aging</span>
+            </div>
+            <div class="dashboard-kpi-secondary-value dashboard-kpi-count-value" id="ops-kpi-aging">0 hari</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 col-xl-3">
+        <div class="phoenix-card h-100 dashboard-kpi-compact-card dashboard-kpi-secondary-card" data-bs-toggle="tooltip" data-bs-placement="top" title="Jumlah order yang melewati target SLA">
+          <div class="card-body-custom">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div class="icon-circle bg-danger-subtle text-danger"><i class="fa-solid fa-calendar-xmark"></i></div>
+              <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Overdue</span>
+            </div>
+            <div class="dashboard-kpi-secondary-value dashboard-kpi-count-value" id="ops-kpi-overdue">0</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 col-xl-3">
+        <div class="phoenix-card h-100 dashboard-kpi-compact-card dashboard-kpi-secondary-card" data-bs-toggle="tooltip" data-bs-placement="top" title="Nilai outstanding netto di luar order selesai">
+          <div class="card-body-custom">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div class="icon-circle bg-warning-subtle text-warning"><i class="fa-solid fa-coins"></i></div>
+              <span class="badge bg-warning-subtle text-warning border border-warning-subtle">Backlog</span>
+            </div>
+            <div class="dashboard-kpi-secondary-value dashboard-kpi-money-value" id="ops-kpi-outstanding-netto">Rp 0</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 col-xl-3">
+        <div class="phoenix-card h-100 dashboard-kpi-compact-card dashboard-kpi-secondary-card" data-bs-toggle="tooltip" data-bs-placement="top" title="PIC dengan nilai backlog outstanding terbesar">
+          <div class="card-body-custom">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div class="icon-circle bg-primary-subtle text-primary"><i class="fa-solid fa-user-clock"></i></div>
+              <span class="badge bg-primary-subtle text-primary border border-primary-subtle">Top Backlog PIC</span>
+            </div>
+            <div class="dashboard-kpi-secondary-value" id="ops-kpi-top-pic" style="font-size:1rem; line-height:1.35;">-</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="phoenix-card mb-4 dashboard-toolbar-card dashboard-surface-card">
+      <div class="card-body-custom py-3">
+        <div class="d-flex flex-column flex-xl-row gap-2 justify-content-between align-items-xl-center dashboard-toolbar-inline">
+          <div class="fw-bold text-custom">Pencarian & Filter</div>
+          <div class="d-flex flex-wrap gap-2 align-items-center ms-xl-auto">
+            <div class="input-group input-group-sm dashboard-quick-search" style="width: 380px; max-width: 100%;">
+              <span class="input-group-text bg-surface"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+              <input type="text" class="form-control" id="ops-filter-search" placeholder="Cari cepat No. PO / Instansi / Principal...">
+            </div>
+            <button class="btn btn-sm btn-outline-primary bg-surface" data-bs-toggle="modal" data-bs-target="#opsFilterModal">
+              <i class="fa-solid fa-sliders me-2"></i>Filter Global
+            </button>
+            <button class="btn btn-sm btn-outline-primary bg-surface" id="ops-reset-filters-toolbar">
+              <i class="fa-solid fa-arrow-rotate-right me-2"></i>Reset
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+      <div class="col-12 col-xl-6">
+        <div class="phoenix-card h-100 dashboard-surface-card">
+          <div class="card-header-custom d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <h5><i class="fa-solid fa-chart-column me-2 text-primary"></i>Tren Brutto vs Netto</h5>
+            <div class="btn-group btn-group-sm">
+              <button class="btn btn-outline-primary active">Bulanan</button>
+              <button class="btn btn-outline-primary">Mingguan</button>
+            </div>
+          </div>
+          <div class="card-body-custom">
+            <div style="height: 320px;"><canvas id="opsTrendBruttoNettoChart"></canvas></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 col-xl-3">
+        <div class="phoenix-card h-100 dashboard-surface-card">
+          <div class="card-header-custom">
+            <h5><i class="fa-solid fa-filter-circle-dollar me-2 text-primary"></i>Funnel Pesanan</h5>
+          </div>
+          <div class="card-body-custom">
+            <div style="height: 320px;"><canvas id="opsOrderFunnelChart"></canvas></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 col-xl-3">
+        <div class="phoenix-card h-100 dashboard-surface-card">
+          <div class="card-header-custom">
+            <h5><i class="fa-solid fa-arrows-down-to-line me-2 text-primary"></i>Negosiasi & Leakage</h5>
+          </div>
+          <div class="card-body-custom">
+            <div style="height: 320px;"><canvas id="opsLeakageChart"></canvas></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+      <div class="col-12 col-xl-4">
+        <div class="phoenix-card h-100 dashboard-surface-card">
+          <div class="card-header-custom d-flex justify-content-between align-items-center"><h5><i class="fa-solid fa-bars-progress me-2 text-primary"></i>Aging Pesanan Aktif</h5><span class="badge bg-info-subtle text-info border border-info-subtle">Bucket hari</span></div>
+          <div class="card-body-custom"><div style="height: 320px;"><canvas id="opsOrderAgingChart"></canvas></div></div>
+        </div>
+      </div>
+      <div class="col-12 col-xl-4">
+        <div class="phoenix-card h-100 dashboard-surface-card">
+          <div class="card-header-custom d-flex justify-content-between align-items-center"><h5><i class="fa-solid fa-layer-group me-2 text-primary"></i>Backlog Outstanding per PIC</h5><span class="badge bg-warning-subtle text-warning border border-warning-subtle">Netto aktif</span></div>
+          <div class="card-body-custom"><div style="height: 320px;"><canvas id="opsBacklogOwnerChart"></canvas></div></div>
+        </div>
+      </div>
+      <div class="col-12 col-xl-4">
+        <div class="phoenix-card h-100 dashboard-surface-card">
+          <div class="card-header-custom d-flex justify-content-between align-items-center"><h5><i class="fa-solid fa-ranking-star me-2 text-primary"></i>Backlog Outstanding Tertinggi</h5><span class="badge bg-primary-subtle text-primary border border-primary-subtle">Top 5</span></div>
+          <div class="card-body-custom"><div id="opsBacklogTable"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="row g-4 mb-4">
+      <div class="col-12 col-xl-4">
+        <div class="phoenix-card h-100 dashboard-surface-card">
+          <div class="card-header-custom d-flex justify-content-between align-items-center"><h5><i class="fa-solid fa-calendar-days me-2 text-primary"></i>Forecast Shipment</h5><span class="badge bg-success-subtle text-success border border-success-subtle">7 / 14 / 30 hari</span></div>
+          <div class="card-body-custom"><div style="height: 320px;"><canvas id="opsShipmentForecastChart"></canvas></div></div>
+        </div>
+      </div>
+      <div class="col-12 col-xl-4">
+        <div class="phoenix-card h-100 dashboard-surface-card">
+          <div class="card-header-custom d-flex justify-content-between align-items-center"><h5><i class="fa-solid fa-users-viewfinder me-2 text-primary"></i>Owner Performance</h5><span class="badge bg-primary-subtle text-primary border border-primary-subtle">Operasional</span></div>
+          <div class="card-body-custom"><div id="opsOwnerPerformanceTable"></div></div>
+        </div>
+      </div>
+      <div class="col-12 col-xl-4">
+        <div class="phoenix-card h-100 dashboard-surface-card">
+          <div class="card-header-custom d-flex justify-content-between align-items-center"><h5><i class="fa-solid fa-truck-arrow-right me-2 text-primary"></i>Shipment Mendatang</h5><span class="badge bg-info-subtle text-info border border-info-subtle">Urutan target</span></div>
+          <div class="card-body-custom"><div id="opsUpcomingShipmentTable"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+      <div class="col-12 col-xl-4">
+        <div class="phoenix-card h-100 dashboard-surface-card">
+          <div class="card-header-custom d-flex justify-content-between align-items-center"><h5><i class="fa-solid fa-bullseye me-2 text-primary"></i>Forecast Accuracy</h5><span class="badge bg-info-subtle text-info border border-info-subtle">Closing vs shipment</span></div>
+          <div class="card-body-custom"><div style="height: 320px;"><canvas id="opsForecastAccuracyChart"></canvas></div></div>
+        </div>
+      </div>
+      <div class="col-12 col-xl-4">
+        <div class="phoenix-card h-100 dashboard-surface-card">
+          <div class="card-header-custom d-flex justify-content-between align-items-center"><h5><i class="fa-solid fa-diagram-project me-2 text-primary"></i>Executive Summary Lintas Funnel-Order-Logistik</h5><span class="badge bg-primary-subtle text-primary border border-primary-subtle">Ringkas</span></div>
+          <div class="card-body-custom"><div id="opsExecutiveSummaryTable"></div></div>
+        </div>
+      </div>
+      <div class="col-12 col-xl-4">
+        <div class="phoenix-card h-100 dashboard-surface-card">
+          <div class="card-header-custom d-flex justify-content-between align-items-center"><h5><i class="fa-solid fa-siren-on me-2 text-primary"></i>Exception Manajerial Ringkas</h5><span class="badge bg-danger-subtle text-danger border border-danger-subtle">Top exception</span></div>
+          <div class="card-body-custom"><div id="opsExecutiveExceptionTable"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+      <div class="col-12">
+        <div class="phoenix-card h-100 dashboard-surface-card">
+          <div class="card-header-custom d-flex justify-content-between align-items-center">
+            <h5><i class="fa-solid fa-clipboard-check me-2 text-primary"></i>Kelengkapan Data Pesanan</h5>
+            
+          </div>
+          <div class="card-body-custom">
+            <div class="row g-3 dashboard-inline-stats-row">
+              <div class="col-12 col-md-6 col-xl-3">
+                <div class="dashboard-inline-stat bg-warning-subtle border border-warning-subtle">
+                  <div class="small text-muted mb-1">Data Belum Lengkap</div>
+                  <div class="dashboard-inline-stat-value" id="ops-incomplete-data">0</div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6 col-xl-3">
+                <div class="dashboard-inline-stat bg-danger-subtle border border-danger-subtle">
+                  <div class="small text-muted mb-1">Dokumen Belum Lengkap</div>
+                  <div class="dashboard-inline-stat-value" id="ops-incomplete-docs">0</div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6 col-xl-3">
+                <div class="dashboard-inline-stat bg-warning-subtle border border-warning-subtle">
+                  <div class="small text-muted mb-1">Target Waktu Belum Valid</div>
+                  <div class="dashboard-inline-stat-value" id="ops-invalid-target">0</div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6 col-xl-3">
+                <div class="dashboard-inline-stat bg-primary-subtle border border-primary-subtle">
+                  <div class="small text-muted mb-1">Belum Ada Kalkulasi</div>
+                  <div class="dashboard-inline-stat-value" id="ops-no-calculation">0</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+      <div class="col-12">
+        <div class="phoenix-card h-100 dashboard-surface-card">
+          <div class="card-header-custom d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <h5><i class="fa-solid fa-triangle-exclamation me-2 text-primary"></i>Pesanan yang Butuh Tindakan</h5>
+            <div class="d-flex gap-2 align-items-center">
+              <input type="text" class="form-control form-control-sm" id="ops-action-needed-search" placeholder="Cari No. PO / Instansi..." style="width:260px;">
+              <button class="btn btn-sm btn-outline-primary bg-surface" id="ops-action-needed-filter-quick">Filter Cepat</button>
+            </div>
+          </div>
+          <div class="card-body-custom"><div id="opsActionNeededTable"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+      <div class="col-12">
+        <div class="phoenix-card dashboard-surface-card">
+          <div class="card-header-custom d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <h5><i class="fa-solid fa-list-check me-2 text-primary"></i>Daftar Pesanan Aktif</h5>
+            <div class="d-flex gap-2">
+              <input type="text" class="form-control form-control-sm" id="ops-active-orders-search" placeholder="Cari No. PO / Satker / Principal..." style="width:260px;">
+              <button class="btn btn-sm btn-outline-primary bg-surface" id="ops-active-orders-filter-quick">Filter Cepat</button>
+            </div>
+          </div>
+          <div class="card-body-custom"><div id="opsActiveOrdersTable"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-12">
+        <div class="phoenix-card dashboard-surface-card">
+          <div class="card-header-custom d-flex justify-content-between align-items-center">
+            <h5><i class="fa-solid fa-clock-rotate-left me-2 text-primary"></i>Aktivitas Perubahan Data / Update Terbaru</h5>
+            <button class="btn btn-sm btn-outline-primary bg-surface" id="ops-activity-view-all">Lihat Semua</button>
+          </div>
+          <div class="card-body-custom"><div id="opsActivityLogTable"></div></div>
+        </div>
+      </div>
+    </div>
+
+
+
+    <div class="modal fade" id="opsOrderActionModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"><i class="fa-solid fa-file-lines me-2 text-primary"></i>Detail Pesanan</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row g-3">
+              <div class="col-md-6"><div class="view-label">No PO</div><div class="view-value" id="ops-modal-po">-</div></div>
+              <div class="col-md-6"><div class="view-label">Instansi</div><div class="view-value" id="ops-modal-instansi">-</div></div>
+              <div class="col-md-4"><div class="view-label">Principal</div><div class="view-value" id="ops-modal-principal">-</div></div>
+              <div class="col-md-4"><div class="view-label">Pemasok</div><div class="view-value" id="ops-modal-pemasok">-</div></div>
+              <div class="col-md-4"><div class="view-label">PIC</div><div class="view-value" id="ops-modal-pic">-</div></div>
+              <div class="col-md-4"><div class="view-label">Status Pesanan</div><div class="view-value" id="ops-modal-status-order">-</div></div>
+              <div class="col-md-4"><div class="view-label">Status Kirim</div><div class="view-value" id="ops-modal-status-ship">-</div></div>
+              <div class="col-md-4"><div class="view-label">Update Terakhir</div><div class="view-value" id="ops-modal-updated">-</div></div>
+              <div class="col-12"><div class="view-label">Masalah / Ringkasan</div><div class="view-value" id="ops-modal-summary">-</div></div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-primary bg-surface" data-bs-dismiss="modal">Tutup</button>
+            <a href="data-pesanan.html" class="btn btn-outline-primary" id="ops-modal-view-link">Lihat Detail Pesanan</a>
+            <a href="input-pesanan.html" class="btn btn-primary" id="ops-modal-edit-link">Update Data</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="opsActivityModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"><i class="fa-solid fa-clock-rotate-left me-2 text-primary"></i>Aktivitas Perubahan Data / Update Terbaru</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div id="opsActivityModalTable"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-primary bg-surface" data-bs-dismiss="modal">Tutup</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="opsFilterModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"><i class="fa-solid fa-sliders me-2 text-primary"></i>Filter Global Pesanan</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row g-3">
+              <div class="col-12 col-md-6 col-xl-4"><label class="form-label">Periode</label><select class="form-select" id="ops-filter-period"><option>Bulan Ini</option><option>3 Bulan Terakhir</option><option>Tahun Berjalan</option></select></div>
+              <div class="col-12 col-md-6 col-xl-4"><label class="form-label">Wilayah</label><select class="form-select" id="ops-filter-region"><option>Semua Wilayah</option></select></div>
+              <div class="col-12 col-md-6 col-xl-4"><label class="form-label">Satker / Instansi</label><select class="form-select" id="ops-filter-satker"><option>Semua Satker</option></select></div>
+              <div class="col-12 col-md-6 col-xl-4"><label class="form-label">Principal</label><select class="form-select" id="ops-filter-principal"><option>Semua Principal</option></select></div>
+              <div class="col-12 col-md-6 col-xl-4"><label class="form-label">Pemasok</label><select class="form-select" id="ops-filter-supplier"><option>Semua Pemasok</option></select></div>
+              <div class="col-12 col-md-6 col-xl-4"><label class="form-label">Pelaksana</label><select class="form-select" id="ops-filter-executor"><option>Semua Pelaksana</option></select></div>
+              <div class="col-12 col-md-6 col-xl-6"><label class="form-label">PIC / Penggarap</label><select class="form-select" id="ops-filter-pic"><option>Semua PIC</option></select></div>
+              <div class="col-12 col-md-6 col-xl-3"><label class="form-label">Status Pesanan</label><select class="form-select" id="ops-filter-order-status"><option>Semua Status</option><option>Baru</option><option>Diproses</option><option>Siap Kirim</option><option>Dalam Pengiriman</option><option>Selesai</option><option>Bermasalah</option></select></div>
+              <div class="col-12 col-md-6 col-xl-3"><label class="form-label">Kelengkapan Data</label><select class="form-select" id="ops-filter-completeness"><option>Semua</option><option>Lengkap</option><option>Belum Lengkap</option><option>Dokumen Belum Lengkap</option></select></div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-primary bg-surface" id="ops-reset-filters-modal">Reset</button>
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Terapkan</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://unpkg.com/tabulator-tables@5.5.2/dist/js/tabulator.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="assets/js/script.js"></script>
+<script src="assets/js/shared/feedback-ui.js"></script>
+<script src="assets/js/shared/api-bridge.js"></script>
+    <script src="assets/js/shared/auth-ui.js"></script>
+    <script src="assets/js/shared/ops-backup.js"></script>
+<script src="assets/js/shared/master-normalizer.js"></script>
+<script src="assets/js/shared/status-dictionary.js"></script>
+    <script src="assets/js/data/pesanan-dashboard-data.js"></script>
+    <script src="assets/js/pages/dashboard-data-bridge.js"></script>
+    <script src="assets/js/pages/dashboard-operasional-pesanan.js"></script>
+<script src="assets/js/shared/ui-polish.js"></script>
+</body>
+</html>

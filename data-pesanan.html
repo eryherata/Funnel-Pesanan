@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Pesanan - DataSystem</title>
+    <script>const savedTheme = localStorage.getItem('theme') || 'light'; document.documentElement.setAttribute('data-theme', savedTheme);</script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link href="https://unpkg.com/tabulator-tables@5.5.2/dist/css/tabulator.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <style>
+        .modal-fullscreen .modal-content { border-radius: 0; border: none; }
+        .modal-fullscreen .modal-header { background-color: var(--bg-surface); z-index: 1050; position: sticky; top: 0; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .modal-fullscreen .modal-footer { background-color: var(--bg-surface); z-index: 1050; position: sticky; bottom: 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+        .modal-fullscreen .modal-body { background-color: var(--bg-body); padding: 20px 30px; }
+        .view-label { font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); font-weight: 800; margin-bottom: 0.45rem; letter-spacing: .04em; }
+        .view-value { font-size: 0.95rem; color: var(--text-main); font-weight: 700; margin-bottom: 0; line-height: 1.45; word-break: break-word; }
+        .detail-field-card { background: var(--bg-body); border: 1px solid var(--border-color); border-radius: .85rem; padding: .95rem 1rem; min-height: 100%; }
+        .detail-section-subtitle { font-size: .82rem; color: var(--text-muted); margin-top: .2rem; }
+        #detailPesananModal .card-body-custom { padding: 16px 18px; }
+        #detailPesananModal .phoenix-card { overflow: hidden; }
+        #detailPesananModal .modal-body { background: var(--bg-body); }
+        #detailPesananModal .modal-header, #detailPesananModal .modal-footer { background: var(--bg-surface); }
+        .page-toolbar-inline .input-group { min-width: 280px; }
+        .tabulator-page-size, .tabulator-footer select, .tabulator select { background-color: var(--input-bg) !important; color: var(--text-main) !important; border: 1px solid var(--border-color) !important; }
+        [data-theme="dark"] .tabulator-page-size, [data-theme="dark"] .tabulator-footer select, [data-theme="dark"] .tabulator select { background-color: var(--input-bg) !important; color: var(--text-main) !important; }
+        .action-icon-btn { width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; padding: 0; }
+        .tabulator .tabulator-header .tabulator-col { vertical-align: middle; }
+        .audit-trail-box { max-height: 280px; overflow: auto; }
+        .source-funnel-chip { display:inline-flex; align-items:center; gap:.45rem; padding:.45rem .75rem; border-radius:999px; border:1px solid var(--border-color); background:var(--bg-body); font-weight:700; }
+
+        .ops-list-box { max-height: 320px; overflow: auto; }
+        .issue-summary-chip { display:inline-flex; align-items:center; gap:.4rem; padding:.45rem .7rem; border-radius:999px; border:1px solid var(--border-color); background:var(--bg-body); font-weight:700; }
+        .issue-summary-chip.is-open { border-color: rgba(245,158,11,.35); }
+        .issue-summary-chip.is-critical { border-color: rgba(220,38,38,.35); }
+        .order-issue-actions .btn { min-width: 92px; }
+        .saved-view-chip { display:inline-flex; align-items:center; gap:.45rem; padding:.45rem .75rem; border-radius:999px; border:1px solid var(--border-color); background:var(--bg-body); font-weight:700; }
+        .saved-view-chip strong { color: var(--primary-color, #2c7be5); }
+        .selection-summary-chip { display:inline-flex; align-items:center; gap:.45rem; padding:.45rem .75rem; border-radius:999px; border:1px solid rgba(44,123,229,.2); background:rgba(44,123,229,.08); color:var(--text-main); font-weight:700; }
+        .bulk-update-grid .form-label { font-weight: 700; }
+        .exception-center-toolbar { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:1rem; }
+        .exception-center-toolbar .filters { display:flex; flex-wrap:wrap; gap:.75rem; align-items:center; }
+        .exception-kpi { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1rem; }
+        .exception-kpi-card { border:1px solid var(--border-color); border-radius:1rem; padding:1rem; background:var(--bg-body); }
+        .exception-kpi-label { font-size:.78rem; text-transform:uppercase; letter-spacing:.04em; color:var(--text-muted); font-weight:800; margin-bottom:.35rem; }
+        .exception-kpi-value { font-size:1.25rem; font-weight:800; color:var(--text-main); }
+        .view-actions-inline { display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; }
+        .page-toolbar-inline .choices { min-width: 220px; }
+    </style>
+</head>
+<body>
+    <nav class="topbar">
+        <div class="topbar-left"><a href="index.html" class="topbar-brand"><i class="fa-solid fa-layer-group text-primary"></i><span class="brand-text">DataSystem</span></a></div>
+        <div class="topbar-right"><button class="btn-icon" id="themeToggle"><i class="fa-solid fa-moon" id="themeIcon"></i></button><button class="btn-icon"><i class="fa-regular fa-bell"></i></button><img src="https://ui-avatars.com/api/?name=Admin+User&background=2c7be5&color=fff" class="rounded-circle" width="40" alt="Profile"></div>
+    </nav>
+    
+    <nav class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+        <div class="sidebar-menu" id="sidebar-accordion">
+            
+            <div class="sidebar-item-wrapper">
+                <a class="sidebar-nav-item" data-bs-toggle="collapse" href="#menuDashboard" role="button" aria-expanded="false">
+                    <div class="nav-item-left"><i class="fa-solid fa-chart-pie"></i><span class="nav-text">Dashboard</span></div>
+                    <i class="fa-solid fa-chevron-right nav-indicator"></i>
+                </a>
+                <div class="collapse" id="menuDashboard" data-bs-parent="#sidebar-accordion">
+                    <ul class="sidebar-sub-menu">
+                        <li class="sidebar-popup-header">Dashboard</li>
+                        <li><a href="index.html" class="sidebar-sub-item ajax-link">Analitik Penjualan</a></li>
+                        <li><a href="logistik-sla.html" class="sidebar-sub-item ajax-link">Logistik & SLA</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="sidebar-item-wrapper mt-2">
+                <a class="sidebar-nav-item" data-bs-toggle="collapse" href="#menuInputData" role="button" aria-expanded="true">
+                    <div class="nav-item-left"><i class="fa-solid fa-folder-open"></i><span class="nav-text">Manajemen Data</span></div>
+                    <i class="fa-solid fa-chevron-right nav-indicator"></i>
+                </a>
+                <div class="collapse show" id="menuInputData" data-bs-parent="#sidebar-accordion">
+                    <ul class="sidebar-sub-menu">
+                        <li class="sidebar-popup-header">Manajemen Data</li>
+                        <li><a href="input-pesanan.html" class="sidebar-sub-item ajax-link">Pesanan Baru</a></li>
+                        <li><a href="data-pesanan.html" class="sidebar-sub-item ajax-link">Daftar Pesanan</a></li>
+                        <li><a href="database-master.html" class="sidebar-sub-item ajax-link">Database Master</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="sidebar-item-wrapper mt-2">
+                <a class="sidebar-nav-item" data-bs-toggle="collapse" href="#menuKalkulator" role="button" aria-expanded="false">
+                    <div class="nav-item-left"><i class="fa-solid fa-calculator"></i><span class="nav-text">Kalkulator</span></div>
+                    <i class="fa-solid fa-chevron-right nav-indicator"></i>
+                </a>
+                <div class="collapse" id="menuKalkulator" data-bs-parent="#sidebar-accordion">
+                    <ul class="sidebar-sub-menu">
+                        <li class="sidebar-popup-header">Kalkulator</li>
+                        <li><a href="kalkulator-b2b.html" class="sidebar-sub-item ajax-link">B2B (2 Layer)</a></li>
+                        <li><a href="kalkulator-distributor.html" class="sidebar-sub-item ajax-link">Distributor (3 Layer)</a></li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="sidebar-bottom">
+        <button class="sidebar-toggle-btn" id="sidebarToggle"><i class="fa-solid fa-chevron-left"></i><span class="nav-text" id="toggleText">Kecilkan Tampilan</span></button>
+    </div>
+	</nav>
+
+    
+    <div class="main-content" id="mainContent">
+        <div class="container-fluid pb-4">
+
+            <!-- PAGE HEADER -->
+            <div class="d-flex flex-column flex-xl-row justify-content-between align-items-xl-end gap-3 mb-4">
+                <div>
+                    <h2 class="page-title">Daftar Pesanan</h2>
+                    <p class="page-subtitle">Pusat kontrol seluruh pesanan, status operasional, kelengkapan data, dan update pengiriman.</p>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="input-pesanan.html" class="btn btn-primary">
+                        <i class="fa-solid fa-plus me-2"></i>Buat Pesanan Baru
+                    </a>
+                </div>
+            </div>
+
+            <!-- QUICK FILTER / SUMMARY -->
+            <div class="phoenix-card mb-4">
+                <div class="card-header-custom d-flex align-items-center gap-2">
+                    <h5 class="mb-0"><i class="fa-solid fa-magnifying-glass me-2 text-primary"></i>Pencarian & Filter</h5>
+                </div>
+                <div class="card-body-custom">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 page-toolbar-inline">
+                        <div class="input-group flex-grow-1" style="max-width: 560px; min-width: 260px;">
+                            <span class="input-group-text bg-surface"><i class="fa-solid fa-search text-muted"></i></span>
+                            <input type="text" id="search-pesanan" class="form-control" placeholder="Cari No. PO / Nama Pengadaan / Instansi / Principal / Pemasok / Pelaksana / Resi...">
+                        </div>
+                        <div class="d-flex flex-wrap gap-2 ms-auto">
+                            <button class="btn btn-outline-primary bg-surface" data-bs-toggle="modal" data-bs-target="#filterPesananModal">
+                                <i class="fa-solid fa-filter me-2"></i>Filter
+                            </button>
+                            <button class="btn btn-outline-primary bg-surface" id="btnOpenBulkUpdateModal" data-bs-toggle="modal" data-bs-target="#bulkUpdatePesananModal">
+                                <i class="fa-solid fa-layer-group me-2"></i>Bulk Update
+                            </button>
+                            <button class="btn btn-outline-primary bg-surface" id="btnOpenSaveViewModal" data-bs-toggle="modal" data-bs-target="#savedViewModal">
+                                <i class="fa-solid fa-bookmark me-2"></i>Simpan View
+                            </button>
+                            <button class="btn btn-outline-primary bg-surface" id="btnResetFilterPesanan">
+                                <i class="fa-solid fa-arrow-rotate-right me-2"></i>Reset Filter
+                            </button>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mt-3">
+                        <div class="view-actions-inline">
+                            <select id="saved-view-select" class="form-select" style="min-width: 240px;">
+                                <option value="">Pilih view tersimpan</option>
+                            </select>
+                            <button class="btn btn-outline-primary bg-surface" id="btnApplySavedView">
+                                <i class="fa-solid fa-check me-2"></i>Pakai View
+                            </button>
+                            <button class="btn btn-outline-danger bg-surface" id="btnDeleteSavedView">
+                                <i class="fa-solid fa-trash me-2"></i>Hapus View
+                            </button>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2 justify-content-end">
+                            <div class="saved-view-chip" id="active-view-chip"><i class="fa-solid fa-bookmark text-primary"></i><span>View aktif: <strong>Standar</strong></span></div>
+                            <div class="selection-summary-chip" id="bulk-selection-chip"><i class="fa-solid fa-list-check text-primary"></i><span>0 pesanan dipilih</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MAIN TABLE -->
+            <div class="phoenix-card mb-4">
+                <div class="card-header-custom d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div>
+                        <h5 class="mb-1"><i class="fa-solid fa-list-ul me-2 text-primary"></i>Semua Transaksi Pesanan</h5>
+                        <div class="small text-muted">Menampilkan daftar pesanan utama beserta pihak terkait, nilai transaksi, status operasional, dan aksi cepat.</div>
+                    </div>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <button class="btn btn-sm btn-outline-primary bg-surface" id="btnRefreshPesanan"><i class="fa-solid fa-rotate me-1"></i>Refresh</button>
+                        <button class="btn btn-sm btn-outline-primary bg-surface" id="btnExportPesanan"><i class="fa-solid fa-download me-1"></i>Export</button>
+                    </div>
+                </div>
+                <div class="card-body-custom p-0">
+                    <div id="daftar-pesanan-grid"></div>
+                </div>
+            </div>
+
+            <div class="phoenix-card mb-0">
+                <div class="card-header-custom d-flex flex-column gap-3">
+                    <div class="exception-center-toolbar">
+                        <div>
+                            <h5 class="mb-1"><i class="fa-solid fa-triangle-exclamation me-2 text-primary"></i>Exception Center</h5>
+                            <div class="small text-muted">Pusat pemantauan blocker, exception, dan tindak lanjut order yang memerlukan perhatian cepat.</div>
+                        </div>
+                        <div class="filters">
+                            <input type="text" class="form-control" id="issue-search-input" placeholder="Cari order / issue / owner" style="min-width: 240px;">
+                            <select class="form-select searchable-dropdown" id="issue-status-filter" style="min-width: 180px;">
+                                <option value="Open">Issue terbuka</option>
+                                <option value="">Semua status</option>
+                                <option value="Resolved">Resolved</option>
+                            </select>
+                            <select class="form-select searchable-dropdown" id="issue-severity-filter" style="min-width: 180px;">
+                                <option value="">Semua severity</option>
+                                <option value="Kritis">Kritis</option>
+                                <option value="Tinggi">Tinggi</option>
+                                <option value="Sedang">Sedang</option>
+                                <option value="Rendah">Rendah</option>
+                            </select>
+                            <button class="btn btn-outline-primary bg-surface" id="btnRefreshExceptionCenter"><i class="fa-solid fa-rotate me-2"></i>Refresh</button>
+                        </div>
+                    </div>
+                    <div class="exception-kpi">
+                        <div class="exception-kpi-card"><div class="exception-kpi-label">Issue terbuka</div><div class="exception-kpi-value" id="exception-open-count">0</div></div>
+                        <div class="exception-kpi-card"><div class="exception-kpi-label">Kritis / Tinggi</div><div class="exception-kpi-value" id="exception-critical-count">0</div></div>
+                        <div class="exception-kpi-card"><div class="exception-kpi-label">Lewat target</div><div class="exception-kpi-value" id="exception-overdue-count">0</div></div>
+                        <div class="exception-kpi-card"><div class="exception-kpi-label">Owner aktif</div><div class="exception-kpi-value" id="exception-owner-count">0</div></div>
+                    </div>
+                </div>
+                <div class="card-body-custom p-0">
+                    <div id="exception-center-grid"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- FILTER GLOBAL MODAL -->
+    <div class="modal fade" id="filterPesananModal" tabindex="-1" aria-labelledby="filterPesananModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="filterPesananModalLabel"><i class="fa-solid fa-filter me-2 text-primary"></i>Filter Global Daftar Pesanan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="phoenix-card mb-4">
+                        <div class="card-header-custom"><h5><i class="fa-solid fa-id-card me-2 text-primary"></i>Filter Identitas Pesanan</h5></div>
+                        <div class="card-body-custom">
+                            <div class="row g-3">
+                                <div class="col-12 col-md-6 col-xl-3"><label class="form-label">Periode Tanggal PO</label><input type="text" class="form-control datepicker" id="filter-po-date-range" placeholder="Pilih rentang tanggal"></div>
+                                <div class="col-12 col-md-6 col-xl-3"><label class="form-label">Wilayah</label><select class="form-select searchable-dropdown" id="filter-wilayah"><option value="">Semua Wilayah</option></select></div>
+                                <div class="col-12 col-md-6 col-xl-3"><label class="form-label">Kabupaten / Kota</label><select class="form-select searchable-dropdown" id="filter-kabkota"><option value="">Semua Kabupaten/Kota</option></select></div>
+                                <div class="col-12 col-md-6 col-xl-3"><label class="form-label">Instansi / Satker</label><select class="form-select searchable-dropdown" id="filter-instansi"><option value="">Semua Instansi / Satker</option></select></div>
+                                <div class="col-12 col-md-6 col-xl-4"><label class="form-label">Nama Pengadaan</label><input type="text" class="form-control" id="filter-pengadaan" placeholder="Cari nama pengadaan"></div>
+                                <div class="col-12 col-md-6 col-xl-4"><label class="form-label">No. PO</label><input type="text" class="form-control" id="filter-po-number" placeholder="Cari nomor PO"></div>
+                                <div class="col-12 col-md-6 col-xl-4"><label class="form-label">Kode RUP</label><input type="text" class="form-control" id="filter-kode-rup" placeholder="Cari kode RUP"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="phoenix-card mb-4">
+                        <div class="card-header-custom"><h5><i class="fa-solid fa-users me-2 text-primary"></i>Filter Pihak Terkait</h5></div>
+                        <div class="card-body-custom"><div class="row g-3">
+                            <div class="col-12 col-md-6 col-xl-3"><label class="form-label">Principal</label><select class="form-select searchable-dropdown" id="filter-principal"><option value="">Semua Principal</option></select></div>
+                            <div class="col-12 col-md-6 col-xl-3"><label class="form-label">Pemasok</label><select class="form-select searchable-dropdown" id="filter-pemasok"><option value="">Semua Pemasok</option></select></div>
+                            <div class="col-12 col-md-6 col-xl-3"><label class="form-label">Distributor</label><select class="form-select searchable-dropdown" id="filter-distributor"><option value="">Semua Distributor</option></select></div>
+                            <div class="col-12 col-md-6 col-xl-3"><label class="form-label">Pelaksana</label><select class="form-select searchable-dropdown" id="filter-pelaksana"><option value="">Semua Pelaksana</option></select></div>
+                            <div class="col-12 col-md-6 col-xl-3"><label class="form-label">PIC Omset</label><select class="form-select searchable-dropdown" id="filter-pic"><option value="">Semua PIC</option></select></div>
+                            <div class="col-12 col-md-6 col-xl-3"><label class="form-label">Penggarap</label><select class="form-select searchable-dropdown" id="filter-penggarap"><option value="">Semua Penggarap</option></select></div>
+                        </div></div>
+                    </div>
+                    <div class="phoenix-card mb-0">
+                        <div class="card-header-custom"><h5><i class="fa-solid fa-chart-pie me-2 text-primary"></i>Filter Nilai, Status, dan Kelengkapan</h5></div>
+                        <div class="card-body-custom"><div class="row g-3">
+                            <div class="col-12 col-md-6 col-xl-3"><label class="form-label">Range Brutto</label><input type="text" class="form-control" id="filter-brutto" placeholder="Misal: 500 Jt - 2 M"></div>
+                            <div class="col-12 col-md-6 col-xl-3"><label class="form-label">Range Netto</label><input type="text" class="form-control" id="filter-netto" placeholder="Misal: 500 Jt - 2 M"></div>
+                            <div class="col-12 col-md-6 col-xl-3"><label class="form-label">Range Negosiasi</label><input type="text" class="form-control" id="filter-negosiasi" placeholder="Misal: 0 - 100 Jt"></div>
+                            <div class="col-12 col-md-6 col-xl-3"><label class="form-label">Mode Pajak</label><select class="form-select searchable-dropdown" id="filter-pajak"><option value="">Semua</option><option value="PPN">PPN</option><option value="NON PPN">NON PPN</option></select></div>
+                            <div class="col-12 col-md-6 col-xl-3"><label class="form-label">Status Pesanan</label><select class="form-select searchable-dropdown" id="filter-status-pesanan"><option value="">Semua</option></select></div>
+                            <div class="col-12 col-md-6 col-xl-3"><label class="form-label">Status Pengiriman</label><select class="form-select searchable-dropdown" id="filter-status-pengiriman"><option value="">Semua</option></select></div>
+                            <div class="col-12 col-md-6 col-xl-3"><label class="form-label">SLA</label><select class="form-select searchable-dropdown" id="filter-sla"><option value="">Semua</option><option value="On Track">On Track</option><option value="H-7">H-7</option><option value="H-3">H-3</option><option value="H-1">H-1</option><option value="Overdue">Overdue</option></select></div>
+                            <div class="col-12 col-md-6 col-xl-3"><label class="form-label">Kelengkapan</label><select class="form-select searchable-dropdown" id="filter-kelengkapan-global"><option value="">Semua</option><option value="Lengkap">Lengkap</option><option value="Data Kurang">Data Kurang</option><option value="Dokumen Kurang">Dokumen Kurang</option><option value="Belum Ada Kalkulasi">Belum Ada Kalkulasi</option></select></div>
+                        </div></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary bg-surface" id="btnResetGlobalFilterPesanan"><i class="fa-solid fa-arrow-rotate-right me-2"></i>Reset Filter</button>
+                    <button type="button" class="btn btn-primary" id="btnApplyGlobalFilterPesanan" data-bs-dismiss="modal"><i class="fa-solid fa-check me-2"></i>Terapkan Filter</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="savedViewModal" tabindex="-1" aria-labelledby="savedViewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="savedViewModalLabel"><i class="fa-solid fa-bookmark me-2 text-primary"></i>Simpan View Filter</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-8"><label class="form-label">Nama View</label><input type="text" class="form-control" id="saved-view-name" placeholder="Contoh: Outstanding Jawa Barat"></div>
+                        <div class="col-md-4"><label class="form-label">Default saat dibuka</label><select class="form-select" id="saved-view-default"><option value="0">Tidak</option><option value="1">Ya</option></select></div>
+                        <div class="col-12"><label class="form-label">Catatan View</label><textarea class="form-control" rows="3" id="saved-view-note" placeholder="Opsional: jelaskan konteks view ini"></textarea></div>
+                        <div class="col-12"><div class="alert alert-primary-subtle border border-primary-subtle mb-0">View akan menyimpan seluruh filter aktif, pencarian cepat, dan preferensi exception center saat ini.</div></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary bg-surface" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" id="btnSaveCurrentView"><i class="fa-solid fa-floppy-disk me-2"></i>Simpan View</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="bulkUpdatePesananModal" tabindex="-1" aria-labelledby="bulkUpdatePesananModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="bulkUpdatePesananModalLabel"><i class="fa-solid fa-layer-group me-2 text-primary"></i>Bulk Update Operasional</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info border border-info-subtle"><i class="fa-solid fa-circle-info me-2"></i><span id="bulk-update-selection-info">Belum ada pesanan yang dipilih.</span></div>
+                    <div class="row g-3 bulk-update-grid">
+                        <div class="col-md-3"><label class="form-label">Status Pesanan</label><select class="form-select searchable-dropdown" id="bulk-status-pesanan"><option value="">Tidak diubah</option><option value="Baru">Baru</option><option value="Validasi Data">Validasi Data</option><option value="Diproses">Diproses</option><option value="Siap Kirim">Siap Kirim</option><option value="Dalam Pengiriman">Dalam Pengiriman</option><option value="Bermasalah">Bermasalah</option><option value="Selesai">Selesai</option></select></div>
+                        <div class="col-md-3"><label class="form-label">Status Pengiriman</label><select class="form-select searchable-dropdown" id="bulk-status-kirim"><option value="">Tidak diubah</option><option value="Belum Diproses">Belum Diproses</option><option value="Penyiapan">Penyiapan</option><option value="Dalam Perjalanan">Dalam Perjalanan</option><option value="Tiba">Tiba</option><option value="BAST">BAST</option><option value="Terkendala">Terkendala</option></select></div>
+                        <div class="col-md-2"><label class="form-label">Prioritas</label><select class="form-select searchable-dropdown" id="bulk-priority"><option value="">Tidak diubah</option><option value="Normal">Normal</option><option value="Perlu Perhatian">Perlu Perhatian</option><option value="Tinggi">Tinggi</option><option value="Kritis">Kritis</option></select></div>
+                        <div class="col-md-2"><label class="form-label">PIC</label><input type="text" class="form-control" id="bulk-pic" placeholder="Opsional"></div>
+                        <div class="col-md-2"><label class="form-label">Penggarap</label><input type="text" class="form-control" id="bulk-penggarap" placeholder="Opsional"></div>
+                        <div class="col-md-6"><label class="form-label">Catatan Update</label><textarea class="form-control" rows="3" id="bulk-issue-note" placeholder="Catatan singkat untuk semua pesanan terpilih"></textarea></div>
+                        <div class="col-md-3"><label class="form-label">Target Tgl Kirim</label><input type="text" class="form-control datepicker" id="bulk-target-prep" placeholder="DD/MM/YYYY"></div>
+                        <div class="col-md-3"><label class="form-label">Target Tgl Tiba Final</label><input type="text" class="form-control datepicker" id="bulk-target-arrive-final" placeholder="DD/MM/YYYY"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary bg-surface" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" id="btnApplyBulkUpdate"><i class="fa-solid fa-check me-2"></i>Terapkan Bulk Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DETAIL PESANAN -->
+    <div class="modal fade" id="detailPesananModal" tabindex="-1" aria-labelledby="detailPesananModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <h5 class="modal-title fw-bold" id="detailPesananModalLabel"><i class="fa-solid fa-file-lines me-2 text-primary"></i>Detail Pesanan</h5>
+                        <div class="small text-muted" id="detailPesananSubTitle">Ringkasan lengkap data order, dokumen, pengiriman, dan item.</div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="phoenix-card mb-4"><div class="card-header-custom"><div><h5><i class="fa-solid fa-id-card me-2 text-primary"></i>Identitas Pesanan</h5><div class="detail-section-subtitle">Ringkasan utama order, instansi, wilayah, dan data pengadaan.</div></div></div><div class="card-body-custom"><div class="row g-3">
+                        <div class="col-md-4"><div class="detail-field-card"><div class="view-label">No. PO</div><div class="view-value" id="detail-po-number">-</div></div></div>
+                        <div class="col-md-4"><div class="detail-field-card"><div class="view-label">Tanggal PO</div><div class="view-value" id="detail-po-date">-</div></div></div>
+                        <div class="col-md-4"><div class="detail-field-card"><div class="view-label">Kode RUP</div><div class="view-value" id="detail-rup">-</div></div></div>
+                        <div class="col-md-6"><div class="detail-field-card"><div class="view-label">Nama Pengadaan</div><div class="view-value" id="detail-pengadaan">-</div></div></div>
+                        <div class="col-md-3"><div class="detail-field-card"><div class="view-label">Wilayah</div><div class="view-value" id="detail-wilayah">-</div></div></div>
+                        <div class="col-md-3"><div class="detail-field-card"><div class="view-label">Kabupaten / Kota</div><div class="view-value" id="detail-kabkota">-</div></div></div>
+                        <div class="col-md-6"><div class="detail-field-card"><div class="view-label">Instansi / Dinas</div><div class="view-value" id="detail-instansi">-</div></div></div>
+                        <div class="col-md-6"><div class="detail-field-card"><div class="view-label">Satuan Kerja</div><div class="view-value" id="detail-satker">-</div></div></div>
+                        <div class="col-md-4"><div class="detail-field-card"><div class="view-label">Sumber Dana</div><div class="view-value" id="detail-sumber-dana">-</div></div></div>
+                        <div class="col-md-4"><div class="detail-field-card"><div class="view-label">Mode Pajak</div><div class="view-value" id="detail-ppn">-</div></div></div>
+                        <div class="col-md-4"><div class="detail-field-card"><div class="view-label">Tgl Kontrak Selesai</div><div class="view-value" id="detail-kontrak-selesai">-</div></div></div>
+                    </div></div></div>
+                    <div class="phoenix-card mb-4"><div class="card-header-custom"><div><h5><i class="fa-solid fa-users me-2 text-primary"></i>Pihak Terkait</h5><div class="detail-section-subtitle">Pemetaan principal, pemasok, distributor, pelaksana, PIC, dan penggarap.</div></div></div><div class="card-body-custom"><div class="row g-3">
+                        <div class="col-md-3"><div class="detail-field-card"><div class="view-label">Principal</div><div class="view-value" id="detail-principal">-</div></div></div>
+                        <div class="col-md-3"><div class="detail-field-card"><div class="view-label">Pemasok</div><div class="view-value" id="detail-pemasok">-</div></div></div>
+                        <div class="col-md-3"><div class="detail-field-card"><div class="view-label">Distributor</div><div class="view-value" id="detail-distributor">-</div></div></div>
+                        <div class="col-md-3"><div class="detail-field-card"><div class="view-label">Pelaksana</div><div class="view-value" id="detail-pelaksana">-</div></div></div>
+                        <div class="col-md-6"><div class="detail-field-card"><div class="view-label">PIC Omset</div><div class="view-value" id="detail-pic">-</div></div></div>
+                        <div class="col-md-6"><div class="detail-field-card"><div class="view-label">Penggarap</div><div class="view-value" id="detail-penggarap">-</div></div></div>
+                    </div></div></div>
+                    <div class="phoenix-card mb-4"><div class="card-header-custom"><div><h5><i class="fa-solid fa-money-bills me-2 text-primary"></i>Nilai Transaksi</h5><div class="detail-section-subtitle">Brutto, netto, negosiasi, serta rincian tayang dan kontrak.</div></div></div><div class="card-body-custom"><div class="row g-3">
+                        <div class="col-md-4"><div class="detail-field-card"><div class="view-label">Brutto Transaksi</div><div class="view-value" id="detail-brutto">Rp 0</div></div></div>
+                        <div class="col-md-4"><div class="detail-field-card"><div class="view-label">Netto Transaksi</div><div class="view-value" id="detail-netto">Rp 0</div></div></div>
+                        <div class="col-md-4"><div class="detail-field-card"><div class="view-label">Total Negosiasi</div><div class="view-value" id="detail-negosiasi">Rp 0</div></div></div>
+                        <div class="col-md-3"><div class="detail-field-card"><div class="view-label">Nilai Tayang Barang</div><div class="view-value" id="detail-tayang-barang">Rp 0</div></div></div>
+                        <div class="col-md-3"><div class="detail-field-card"><div class="view-label">Nilai Tayang Ongkir</div><div class="view-value" id="detail-tayang-ongkir">Rp 0</div></div></div>
+                        <div class="col-md-3"><div class="detail-field-card"><div class="view-label">Nilai Kontrak Barang</div><div class="view-value" id="detail-kontrak-barang">Rp 0</div></div></div>
+                        <div class="col-md-3"><div class="detail-field-card"><div class="view-label">Nilai Kontrak Ongkir</div><div class="view-value" id="detail-kontrak-ongkir">Rp 0</div></div></div>
+                    </div></div></div>
+                    <div class="phoenix-card mb-4"><div class="card-header-custom"><div><h5><i class="fa-solid fa-bars-progress me-2 text-primary"></i>Status Operasional</h5><div class="detail-section-subtitle">Status order, status kirim, SLA, kelengkapan, dan prioritas tindakan.</div></div></div><div class="card-body-custom"><div class="row g-3">
+                        <div class="col-md-3"><div class="detail-field-card"><div class="view-label">Status Pesanan</div><div class="view-value" id="detail-status-pesanan">-</div></div></div>
+                        <div class="col-md-3"><div class="detail-field-card"><div class="view-label">Status Pengiriman</div><div class="view-value" id="detail-status-kirim">-</div></div></div>
+                        <div class="col-md-2"><div class="detail-field-card"><div class="view-label">SLA</div><div class="view-value" id="detail-sla">-</div></div></div>
+                        <div class="col-md-2"><div class="detail-field-card"><div class="view-label">Kelengkapan</div><div class="view-value" id="detail-kelengkapan">-</div></div></div>
+                        <div class="col-md-2"><div class="detail-field-card"><div class="view-label">Prioritas</div><div class="view-value" id="detail-prioritas">-</div></div></div>
+                        <div class="col-md-6"><div class="detail-field-card"><div class="view-label">Last Update</div><div class="view-value" id="detail-last-update">-</div></div></div>
+                        <div class="col-md-6"><div class="detail-field-card"><div class="view-label">Updated By</div><div class="view-value" id="detail-updated-by">-</div></div></div>
+                    </div></div></div>
+                    <div class="phoenix-card mb-4"><div class="card-header-custom"><div><h5><i class="fa-solid fa-link me-2 text-primary"></i>Relasi Funnel & Riwayat Perubahan</h5><div class="detail-section-subtitle">Keterkaitan order dengan funnel sumber, histori audit, dan perubahan status/dokumen terbaru.</div></div></div><div class="card-body-custom"><div class="row g-3">
+                        <div class="col-md-4"><div class="detail-field-card"><div class="view-label">Funnel Sumber</div><div class="view-value" id="detail-source-funnel">-</div></div></div>
+                        <div class="col-md-4"><div class="detail-field-card"><div class="view-label">Nama Funnel</div><div class="view-value" id="detail-source-funnel-name">-</div></div></div>
+                        <div class="col-md-4"><div class="detail-field-card"><div class="view-label">Jumlah Relasi Funnel</div><div class="view-value" id="detail-funnel-link-count">0</div></div></div>
+                        <div class="col-lg-6"><div class="detail-field-card audit-trail-box"><div class="view-label">Audit Trail Order</div><div id="detail-order-audit" class="small text-muted">Belum ada audit trail.</div></div></div>
+                        <div class="col-lg-6"><div class="detail-field-card audit-trail-box"><div class="view-label">Riwayat Status & Dokumen</div><div id="detail-order-history" class="small text-muted">Belum ada riwayat status.</div></div></div>
+                    </div></div></div>
+                    <div class="row g-4 mb-4">
+                        <div class="col-lg-6"><div class="phoenix-card h-100 mb-0"><div class="card-header-custom"><div><h5><i class="fa-solid fa-list-check me-2 text-primary"></i>Checklist Kelengkapan Operasional</h5><div class="detail-section-subtitle">Dokumen dan referensi yang dibutuhkan sesuai status order saat ini.</div></div></div><div class="card-body-custom"><div id="detail-document-checklist" class="ops-list-box small text-muted">Memuat checklist...</div></div></div></div>
+                        <div class="col-lg-6"><div class="phoenix-card h-100 mb-0"><div class="card-header-custom d-flex justify-content-between align-items-start gap-3"><div><h5><i class="fa-solid fa-triangle-exclamation me-2 text-primary"></i>Exception & Blocker</h5><div class="detail-section-subtitle">Daftar blocker aktif, exception operasional, dan target penyelesaiannya.</div></div><div id="detail-issue-summary" class="issue-summary-chip"><i class="fa-solid fa-shield"></i><span>Tidak ada blocker aktif</span></div></div><div class="card-body-custom"><div id="detail-order-issues" class="ops-list-box small text-muted">Memuat blocker & exception...</div></div></div></div>
+                    </div>
+                    <div class="phoenix-card mb-4"><div class="card-header-custom"><div><h5><i class="fa-solid fa-truck-fast me-2 text-primary"></i>Target Waktu & Pengiriman</h5><div class="detail-section-subtitle">Target logistik, data resi, tanggal aktual, penerima, dan kendala terakhir.</div></div></div><div class="card-body-custom"><div class="row g-3">
+                        <div class="col-md-4"><div class="detail-field-card"><div class="view-label">Batas Penyiapan Barang</div><div class="view-value" id="detail-target-prep">-</div></div></div>
+                        <div class="col-md-4"><div class="detail-field-card"><div class="view-label">Batas Tiba Tujuan Pertama</div><div class="view-value" id="detail-target-arrive-1">-</div></div></div>
+                        <div class="col-md-4"><div class="detail-field-card"><div class="view-label">Batas Tiba Tujuan Akhir</div><div class="view-value" id="detail-target-arrive-final">-</div></div></div>
+                        <div class="col-md-4"><div class="detail-field-card"><div class="view-label">Nomor Penjualan</div><div class="view-value" id="detail-sales-number">-</div></div></div>
+                        <div class="col-md-4"><div class="detail-field-card"><div class="view-label">Nomor Resi</div><div class="view-value" id="detail-resi">-</div></div></div>
+                        <div class="col-md-4"><div class="detail-field-card"><div class="view-label">Nama Penerima</div><div class="view-value" id="detail-receiver">-</div></div></div>
+                        <div class="col-md-4"><div class="detail-field-card"><div class="view-label">Tgl Aktual Dikirim</div><div class="view-value" id="detail-actual-sent">-</div></div></div>
+                        <div class="col-md-4"><div class="detail-field-card"><div class="view-label">Tgl Aktual Diterima</div><div class="view-value" id="detail-actual-received">-</div></div></div>
+                        <div class="col-md-4"><div class="detail-field-card"><div class="view-label">Catatan Kendala</div><div class="view-value" id="detail-issue-note">-</div></div></div>
+                    </div></div></div>
+                    <div class="phoenix-card mb-4"><div class="card-header-custom d-flex justify-content-between align-items-center"><div><h5><i class="fa-solid fa-folder-open me-2 text-primary"></i>Dokumen Terkait</h5><div class="detail-section-subtitle">Status dokumen utama dan nomor referensi pendukung transaksi.</div></div><button class="btn btn-sm btn-outline-primary bg-surface">Lihat Dokumen</button></div><div class="card-body-custom"><div class="row g-3">
+                        <div class="col-md-3"><div class="detail-field-card"><div class="view-label">PO Pelaksana → Distributor</div><div class="view-value" id="detail-doc-po-pel">-</div></div></div>
+                        <div class="col-md-3"><div class="detail-field-card"><div class="view-label">PO Distributor → Pemasok</div><div class="view-value" id="detail-doc-po-dis">-</div></div></div>
+                        <div class="col-md-3"><div class="detail-field-card"><div class="view-label">PO Pemasok → Principal</div><div class="view-value" id="detail-doc-po-pem">-</div></div></div>
+                        <div class="col-md-3"><div class="detail-field-card"><div class="view-label">Surat Jalan</div><div class="view-value" id="detail-doc-sj">-</div></div></div>
+                        <div class="col-md-3"><div class="detail-field-card"><div class="view-label">BAST</div><div class="view-value" id="detail-doc-bast">-</div></div></div>
+                        <div class="col-md-3"><div class="detail-field-card"><div class="view-label">Nota Oldist</div><div class="view-value" id="detail-nota-oldist">-</div></div></div>
+                        <div class="col-md-3"><div class="detail-field-card"><div class="view-label">Tanggal Oldist</div><div class="view-value" id="detail-nota-oldist-date">-</div></div></div>
+                        <div class="col-md-3"><div class="detail-field-card"><div class="view-label">Nota ERP</div><div class="view-value" id="detail-nota-erp">-</div></div></div>
+                    </div></div></div>
+                    <div class="phoenix-card mb-0"><div class="card-header-custom d-flex justify-content-between align-items-center"><div><h5><i class="fa-solid fa-boxes-stacked me-2 text-primary"></i>Detail Item Pesanan</h5><div class="detail-section-subtitle">Rincian item, kategori, qty, dan nilai item order.</div></div><button class="btn btn-sm btn-outline-primary bg-surface">Export Item</button></div><div class="card-body-custom"><div id="detail-item-pesanan-grid"></div></div></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary bg-surface" data-bs-dismiss="modal">Tutup</button>
+                    <button type="button" class="btn btn-outline-primary bg-surface" id="btnUpdateStatusFromDetail"><i class="fa-solid fa-truck-fast me-2"></i>Update Status</button>
+                    <button type="button" class="btn btn-primary" id="btnEditPesananFromDetail"><i class="fa-solid fa-pen-to-square me-2"></i>Edit Pesanan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<div class="modal fade" id="editModal" tabindex="-1">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content">
+                <div class="modal-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="modal-title text-custom mb-1" style="font-weight: 800;"><i class="fa-solid fa-pen-to-square text-primary me-2"></i>Edit Transaksi Pesanan: <span class="text-primary" id="edit-po-title">PO-000</span></h4>
+                        <p class="text-muted mb-0" style="font-size: 0.9rem;">Pastikan menekan tombol <b>Simpan Perubahan</b> di pojok kanan bawah setelah selesai mengedit.</p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body pb-5">
+                    <form id="editPesananForm">
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6"><div class="phoenix-card h-100 mb-0"><div class="card-header-custom"><h5><i class="fa-solid fa-building-columns me-2 text-primary"></i> 1. Instansi & Pengadaan</h5></div><div class="card-body-custom row g-3"><div class="col-12"><label class="form-label">Kabupaten/Kota</label><select class="form-select searchable-dropdown"><option value="1" selected>Jakarta</option><option value="">Cari wilayah...</option></select></div><div class="col-6"><label class="form-label">Satuan Kerja</label><input type="text" class="form-control" value="Dinas Pendidikan"></div><div class="col-6"><label class="form-label">Kode RUP</label><input type="text" class="form-control" value="RUP-2026-99"></div><div class="col-12"><label class="form-label">Nama Pengadaan</label><input type="text" class="form-control" value="Pengadaan Alat TIK"></div></div></div></div>
+                            <div class="col-md-6"><div class="phoenix-card h-100 mb-0"><div class="card-header-custom"><h5><i class="fa-solid fa-file-contract me-2 text-primary"></i> 2. Dokumen & Keuangan</h5></div><div class="card-body-custom row g-3"><div class="col-12"><label class="form-label">No. Surat Pesanan / P.O</label><input type="text" class="form-control" value="PO-058"></div><div class="col-6"><label class="form-label">Tanggal P.O</label><input type="text" class="form-control datepicker" value="08/04/2026"></div><div class="col-6"><label class="form-label">Tgl Kontrak Selesai</label><input type="text" class="form-control datepicker" value="15/05/2026"></div><div class="col-6"><label class="form-label">Sumber Dana</label><select class="form-select searchable-dropdown"><option value="1" selected>APBN</option></select></div><div class="col-6"><label class="form-label d-block">Pajak (PPN)</label><div class="form-check form-check-inline mt-1"><input class="form-check-input" type="radio" name="ppnE" checked><label class="form-check-label text-custom">Termasuk PPN</label></div><div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="ppnE"><label class="form-check-label text-custom">Tidak Termasuk PPN</label></div></div></div></div></div>
+                            <div class="col-md-6"><div class="phoenix-card h-100 mb-0"><div class="card-header-custom"><h5><i class="fa-solid fa-network-wired me-2 text-primary"></i> 3. Rantai Pasok</h5></div><div class="card-body-custom row g-3"><div class="col-6"><label class="form-label">Pelaksana</label><select class="form-select searchable-dropdown"><option value="1" selected>PT Pelaksana Alpha</option></select></div><div class="col-6"><label class="form-label">Distributor</label><select class="form-select searchable-dropdown"><option value="1" selected>PT Distribusi</option></select></div><div class="col-6"><label class="form-label">Pemasok</label><select class="form-select searchable-dropdown"><option value="1" selected>PT Pemasok</option></select></div><div class="col-6"><label class="form-label">Principal</label><select class="form-select searchable-dropdown"><option value="1" selected>Asus Corp</option></select></div></div></div></div>
+                            <div class="col-md-6"><div class="phoenix-card h-100 mb-0"><div class="card-header-custom"><h5><i class="fa-solid fa-users me-2 text-primary"></i> 4. Tim & Nota ERP</h5></div><div class="card-body-custom row g-3"><div class="col-6"><label class="form-label">Penggarap</label><select class="form-select searchable-dropdown"><option value="1" selected>Budi</option></select></div><div class="col-6"><label class="form-label">PIC Omset</label><select class="form-select searchable-dropdown"><option value="1" selected>Tim A</option></select></div><div class="col-6"><label class="form-label">No. Nota Oldist</label><input type="text" class="form-control" value="OLD-123"></div><div class="col-6"><label class="form-label">Tgl Nota Oldist</label><input type="text" class="form-control datepicker" value="10/04/2026"></div><div class="col-6"><label class="form-label">Nota ERP</label><input type="text" class="form-control" value="ERP-456"></div><div class="col-6"><label class="form-label">Tanggal ERP</label><input type="text" class="form-control datepicker" value="10/04/2026"></div></div></div></div>
+                        </div>
+                        <div class="row mb-5"><div class="col-12"><div class="phoenix-card mb-0"><div class="card-header-custom d-flex justify-content-between align-items-center"><h5><i class="fa-solid fa-table-list me-2 text-primary"></i> Detail Produk & Input Kalkulasi (Mode Edit)</h5><div><button type="button" class="btn btn-sm btn-primary" id="edit-add-row-btn"><i class="fa-solid fa-plus me-1"></i> Tambah Baris Baru</button></div></div><div class="card-body-custom p-0"><div id="edit-product-grid"></div></div></div></div></div>
+                    </form>
+                </div>
+                <div class="modal-footer justify-content-end px-4 py-3">
+                    <button type="button" class="btn btn-custom-outline me-2" data-bs-dismiss="modal">Batalkan Perubahan</button>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal"><i class="fa-solid fa-floppy-disk me-2"></i>Simpan Perubahan Data</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="statusModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h5 class="modal-title text-custom" style="font-weight: 800;"><i class="fa-solid fa-truck-fast text-primary me-2"></i>Update Status & Dokumen: <span class="text-primary" id="modal-po-title">PO-000</span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body pt-3 pb-4">
+                    <form class="row g-3" id="statusUpdateForm"><input type="hidden" id="status-order-id">
+                        <div class="col-12"><h6 class="text-muted border-bottom pb-2 mb-1" style="font-size: 0.85rem; font-weight: 700; text-transform: uppercase;">A. Referensi & Tracking</h6></div>
+                        <div class="col-md-4"><label class="form-label">Status Pesanan</label><select class="form-select searchable-dropdown" id="status-order-status"><option value="Baru">Baru</option><option value="Validasi Data">Validasi Data</option><option value="Diproses">Diproses</option><option value="Siap Kirim">Siap Kirim</option><option value="Dalam Pengiriman">Dalam Pengiriman</option><option value="Bermasalah">Bermasalah</option><option value="Selesai">Selesai</option></select></div><div class="col-md-4"><label class="form-label">Nomor Penjualan (Invoice/SO)</label><input type="text" class="form-control" id="status-sales-number" placeholder="Contoh: SO-26-001"></div>
+                        <div class="col-md-4"><label class="form-label">Nomor Pengiriman / Resi</label><input type="text" class="form-control" id="status-resi" placeholder="Input nomor resi ekspedisi"></div>
+                        <div class="col-md-12"><label class="form-label">Status Pengiriman Saat Ini</label><select class="form-select searchable-dropdown" id="status-shipping-status"><option value="Belum Diproses">Belum Diproses</option><option value="Penyiapan">Tahap Penyiapan / Packing</option><option value="Dalam Perjalanan">Dalam Perjalanan (Dikirim)</option><option value="Tiba">Tiba di Tujuan (Menunggu Cek)</option><option value="BAST">Selesai (BAST Ditandatangani)</option><option value="Terkendala">Terkendala / Retur</option></select></div>
+                        <div class="col-12 mt-4"><h6 class="text-muted border-bottom pb-2 mb-1" style="font-size: 0.85rem; font-weight: 700; text-transform: uppercase;">B. Validasi Waktu & Penerima</h6></div>
+                        <div class="col-md-4"><label class="form-label">Tgl Aktual Dikirim</label><input type="text" class="form-control datepicker" id="status-actual-sent" placeholder="DD/MM/YYYY"></div>
+                        <div class="col-md-4"><label class="form-label">Tgl Aktual Diterima</label><input type="text" class="form-control datepicker" id="status-actual-received" placeholder="DD/MM/YYYY"></div>
+                        <div class="col-md-4"><label class="form-label">Nama Penerima</label><input type="text" class="form-control" id="status-receiver" placeholder="Nama jelas"></div>
+                        <div class="col-12 mt-4"><h6 class="text-muted border-bottom pb-2 mb-1" style="font-size: 0.85rem; font-weight: 700; text-transform: uppercase;">C. Unggah Dokumen Bukti (PDF/IMG)</h6></div>
+                        <div class="col-md-6"><label class="form-label">Surat Jalan (Delivery Note)</label><div class="file-drop-zone" onclick="document.getElementById('upload-sj').click()"><i class="fa-solid fa-cloud-arrow-up"></i><p>Pilih Dokumen Surat Jalan</p><input type="file" id="upload-sj" class="d-none"></div></div>
+                        <div class="col-md-6"><label class="form-label">BAST / Bukti Terima</label><div class="file-drop-zone" onclick="document.getElementById('upload-bast').click()"><i class="fa-solid fa-cloud-arrow-up"></i><p>Pilih Dokumen BAST</p><input type="file" id="upload-bast" class="d-none"></div></div>
+                        <div class="col-12 mt-4"><h6 class="text-muted border-bottom pb-2 mb-1" style="font-size: 0.85rem; font-weight: 700; text-transform: uppercase;">D. Blocker / Exception</h6></div>
+                        <div class="col-md-3"><div class="form-check mt-4"><input class="form-check-input" type="checkbox" id="status-create-issue"><label class="form-check-label text-custom" for="status-create-issue">Catat sebagai blocker / exception aktif</label></div></div>
+                        <div class="col-md-3"><label class="form-label">Tipe</label><select class="form-select searchable-dropdown" id="status-issue-type"><option value="Exception">Exception</option><option value="Blocker">Blocker</option><option value="Dokumen">Dokumen</option><option value="Logistik">Logistik</option><option value="Pembayaran">Pembayaran</option></select></div>
+                        <div class="col-md-2"><label class="form-label">Severity</label><select class="form-select searchable-dropdown" id="status-issue-severity"><option value="Rendah">Rendah</option><option value="Sedang" selected>Sedang</option><option value="Tinggi">Tinggi</option><option value="Kritis">Kritis</option></select></div>
+                        <div class="col-md-2"><label class="form-label">Owner</label><input type="text" class="form-control" id="status-issue-owner" placeholder="PIC tindak lanjut"></div>
+                        <div class="col-md-2"><label class="form-label">Target Selesai</label><input type="text" class="form-control datepicker" id="status-issue-due-date" placeholder="DD/MM/YYYY"></div>
+                        <div class="col-12 mt-3"><label class="form-label">Catatan Kendala / Keterangan</label><textarea class="form-control" rows="2" id="status-issue-note" placeholder="Tuliskan catatan jika ada barang rusak, retur, atau info lainnya..."></textarea></div>
+                    </form>
+                </div>
+                <div class="modal-footer border-top-0 pt-0">
+                    <button type="button" class="btn btn-custom-outline" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" id="btnSaveStatusUpdate"><i class="fa-solid fa-check me-2"></i>Simpan Perubahan Status</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://unpkg.com/tabulator-tables@5.5.2/dist/js/tabulator.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>window.__USE_ADVANCED_DAFTAR_PESANAN__ = true;</script>
+    <script src="assets/js/script.js"></script>
+<script src="assets/js/shared/feedback-ui.js"></script>
+<script src="assets/js/shared/api-bridge.js"></script>
+    <script src="assets/js/shared/auth-ui.js"></script>
+    <script src="assets/js/shared/ops-backup.js"></script>
+    <script src="assets/js/shared/import-center.js"></script>
+    <script src="assets/js/shared/master-normalizer.js"></script>
+    <script src="assets/js/shared/status-dictionary.js"></script>
+<script src="assets/js/shared/order-workflow.js"></script>
+    <script src="assets/js/pages/daftar-pesanan-advanced.js"></script>
+<script src="assets/js/shared/ui-polish.js"></script>
+</body>
+</html>

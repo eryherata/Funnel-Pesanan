@@ -1,0 +1,42 @@
+:root {
+    --bg-body: #f5f7fa; --bg-surface: #ffffff; --text-main: #31374a; --text-muted: #5e6e82; --border-color: #e3ebf6;
+    --primary-color: #2c7be5; --success-color: #00d27a; --warning-color: #f5803e; --danger-color: #e63757;
+    --hover-bg: #f0f4f8; --table-header-bg: #f8f9fa; --primary-bg-subtle: #eef4fc; --success-bg-subtle: #e6f9f0; --warning-bg-subtle: #fef2ea; --danger-bg-subtle: #fcebed;
+    --table-text: #11151c; --scrollbar-thumb: #b8c2cc; --table-header-border: #cbd5e1;
+    --card-shadow: 0 7px 14px 0 #e3ebf6, 0 3px 6px 0 #e3ebf6;
+    --sidebar-width: 260px; --sidebar-collapsed-width: 80px; --topbar-height: 70px; --footer-height: 70px; --input-bg: #ffffff;
+}
+[data-theme="dark"] {
+    --bg-body: #0f111a; --bg-surface: #141824; --text-main: #e3ebf6; --text-muted: #b3c0d1; --border-color: #222834;
+    --primary-color: #3884ff; --success-color: #00d27a; --warning-color: #f5803e; --danger-color: #e63757;
+    --hover-bg: #1e2433; --table-header-bg: #1a1e2b; --primary-bg-subtle: #1a263d; --success-bg-subtle: #142b24; --warning-bg-subtle: #2d2019; --danger-bg-subtle: #2c181c;
+    --table-text: #ffffff; --scrollbar-thumb: #4a5568; --table-header-border: #2d3748;
+    --card-shadow: 0 7px 14px 0 #07080c, 0 3px 6px 0 #07080c; --input-bg: #0f111a;
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background-color: var(--bg-body); }
+::-webkit-scrollbar-thumb { background-color: var(--scrollbar-thumb); border-radius: 5px; border: 2px solid var(--bg-body); }
+::-webkit-scrollbar-thumb:hover { background-color: var(--text-muted); }
+
+body { font-family: 'Nunito Sans', sans-serif; background-color: var(--bg-body); color: var(--text-main); margin: 0; transition: background-color 0.3s, color 0.3s; }
+.text-custom { color: var(--text-main) !important; }
+.text-muted { color: var(--text-muted) !important; }
+.page-title { font-weight: 700; color: var(--text-main); margin-bottom: 0.25rem; }
+.page-subtitle { color: var(--text-muted); margin-bottom: 0; }
+.bg-primary-subtle { background-color: var(--primary-bg-subtle) !important; }
+.bg-success-subtle { background-color: var(--success-bg-subtle) !important; }
+.bg-warning-subtle { background-color: var(--warning-bg-subtle) !important; }
+.bg-danger-subtle { background-color: var(--danger-bg-subtle) !important; }
+
+
+/* UX cleanup stage 3 */
+.page-title {
+  font-size: clamp(1.65rem, 1.25rem + 0.9vw, 2.2rem);
+  line-height: 1.15;
+}
+.page-subtitle {
+  font-size: 0.98rem;
+  line-height: 1.55;
+  max-width: 74ch;
+}

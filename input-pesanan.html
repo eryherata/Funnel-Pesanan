@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+
+<html data-theme="light" lang="id">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Input Pesanan Baru - DataSystem</title>
+<script>const savedTheme = localStorage.getItem('theme') || 'light'; document.documentElement.setAttribute('data-theme', savedTheme);</script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet"/>
+<link href="https://unpkg.com/tabulator-tables@5.5.2/dist/css/tabulator.min.css" rel="stylesheet"/>
+<link href="assets/css/styles.css" rel="stylesheet"/>
+</link><style>
+.order-workflow-card .order-stage-switch{display:flex;flex-wrap:wrap;gap:.5rem}
+.order-workflow-card .stage-btn{border-radius:999px;padding:.45rem .9rem;font-weight:700}
+.order-workflow-card .stage-btn.is-active{box-shadow:0 0 0 2px rgba(44,123,229,.18)}
+.order-stage-badge{font-size:.82rem}
+.order-stage-section-hidden{display:none!important}
+.order-stage-helper{min-height:1.25rem}
+.order-draft-meta{min-width:180px}
+.order-entry-footer{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.order-entry-footer .footer-group{display:flex;gap:.75rem;flex-wrap:wrap;align-items:center}
+.order-stage-card-note{font-size:.82rem;color:var(--text-muted)}
+.order-status-select{min-width:220px}
+html[data-theme="dark"] .order-workflow-card .stage-btn.is-active{box-shadow:0 0 0 2px rgba(147,197,253,.2)}
+</style></head>
+<body>
+<nav class="topbar">
+<div class="topbar-left"><a class="topbar-brand" href="index.html"><i class="fa-solid fa-layer-group text-primary"></i><span class="brand-text">DataSystem</span></a><input class="search-box ms-4" placeholder="Cari data..." type="text"/></div>
+<div class="topbar-right"><button class="btn-icon" id="themeToggle"><i class="fa-solid fa-moon" id="themeIcon"></i></button><button class="btn-icon"><i class="fa-regular fa-bell"></i></button><img alt="Profile" class="rounded-circle" src="https://ui-avatars.com/api/?name=Admin+User&amp;background=2c7be5&amp;color=fff" width="40"/></div>
+</nav>
+<nav class="sidebar" id="sidebar">
+<div class="sidebar-top">
+<div class="sidebar-menu" id="sidebar-accordion">
+<div class="sidebar-item-wrapper">
+<a aria-expanded="false" class="sidebar-nav-item" data-bs-toggle="collapse" href="#menuDashboard" role="button">
+<div class="nav-item-left"><i class="fa-solid fa-chart-pie"></i><span class="nav-text">Dashboard</span></div>
+<i class="fa-solid fa-chevron-right nav-indicator"></i>
+</a>
+<div class="collapse" data-bs-parent="#sidebar-accordion" id="menuDashboard">
+<ul class="sidebar-sub-menu">
+<li class="sidebar-popup-header">Dashboard</li>
+<li><a class="sidebar-sub-item ajax-link" href="index.html">Analitik Penjualan</a></li>
+<li><a class="sidebar-sub-item ajax-link" href="logistik-sla.html">Logistik &amp; SLA</a></li>
+</ul>
+</div>
+</div>
+<div class="sidebar-item-wrapper mt-2">
+<a aria-expanded="true" class="sidebar-nav-item" data-bs-toggle="collapse" href="#menuInputData" role="button">
+<div class="nav-item-left"><i class="fa-solid fa-folder-open"></i><span class="nav-text">Manajemen Data</span></div>
+<i class="fa-solid fa-chevron-right nav-indicator"></i>
+</a>
+<div class="collapse show" data-bs-parent="#sidebar-accordion" id="menuInputData">
+<ul class="sidebar-sub-menu">
+<li class="sidebar-popup-header">Manajemen Data</li>
+<li><a class="sidebar-sub-item ajax-link" href="input-pesanan.html">Pesanan Baru</a></li>
+<li><a class="sidebar-sub-item ajax-link" href="data-pesanan.html">Daftar Pesanan</a></li>
+<li><a class="sidebar-sub-item ajax-link" href="database-master.html">Database Master</a></li>
+</ul>
+</div>
+</div>
+<div class="sidebar-item-wrapper mt-2">
+<a aria-expanded="false" class="sidebar-nav-item" data-bs-toggle="collapse" href="#menuKalkulator" role="button">
+<div class="nav-item-left"><i class="fa-solid fa-calculator"></i><span class="nav-text">Kalkulator</span></div>
+<i class="fa-solid fa-chevron-right nav-indicator"></i>
+</a>
+<div class="collapse" data-bs-parent="#sidebar-accordion" id="menuKalkulator">
+<ul class="sidebar-sub-menu">
+<li class="sidebar-popup-header">Kalkulator</li>
+<li><a class="sidebar-sub-item ajax-link" href="kalkulator-b2b.html">B2B (2 Layer)</a></li>
+<li><a class="sidebar-sub-item ajax-link" href="kalkulator-distributor.html">Distributor (3 Layer)</a></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sidebar-bottom">
+<button class="sidebar-toggle-btn" id="sidebarToggle"><i class="fa-solid fa-chevron-left"></i><span class="nav-text" id="toggleText">Kecilkan Tampilan</span></button>
+</div>
+</nav>
+<div class="main-content" id="mainContent">
+<div class="container-fluid pb-5">
+<div class="d-flex justify-content-between align-items-center mb-4"><div><h2 class="page-title">Form Pesanan Baru</h2><p class="page-subtitle">Lengkapi data administrasi, logistik, dan item produk di bawah.</p></div><button class="btn btn-outline-success bg-surface" data-bs-target="#importFullModal" data-bs-toggle="modal" style="background-color: var(--bg-surface);"><i class="fa-solid fa-file-import me-2"></i>Import Seluruh Data</button></div>
+
+<div class="phoenix-card mb-3 order-workflow-card" id="order-workflow-card">
+<div class="card-body-custom">
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+<div>
+<div class="text-muted text-uppercase small fw-semibold mb-2">Workflow Input Bertahap</div>
+<div class="order-stage-switch" id="order-stage-switch">
+<button class="btn btn-sm btn-primary stage-btn" data-stage="header" type="button">1. Header</button>
+<button class="btn btn-sm btn-outline-primary stage-btn" data-stage="execution" type="button">2. Eksekusi</button>
+<button class="btn btn-sm btn-outline-primary stage-btn" data-stage="closing" type="button">3. Closing</button>
+</div>
+<div class="order-stage-helper mt-2 small text-muted" id="order-stage-helper">Lengkapi header order terlebih dahulu, lalu lanjutkan ke tahap eksekusi dan closing.</div>
+</div>
+<div class="row g-2 align-items-end ms-auto" style="min-width:min(100%, 520px)">
+<div class="col-sm-5">
+<label class="form-label mb-1">Status Target</label>
+<select class="form-select form-select-sm order-status-select" id="order-status-target"></select>
+</div>
+<div class="col-sm-3">
+<label class="form-label mb-1">Tahap Aktif</label>
+<div><span class="badge text-bg-primary order-stage-badge" id="order-stage-badge">Header</span></div>
+</div>
+<div class="col-sm-4">
+<label class="form-label mb-1">Status Draft</label>
+<div class="small text-muted order-draft-meta" id="order-draft-state">Belum ada draft aktif</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<div class="row g-3 mb-3">
+<div class="col-lg-6">
+<div class="phoenix-card h-100 mb-0" id="order-ops-monitor-card">
+<div class="card-header-custom"><h5><i class="fa-solid fa-list-check me-2 text-primary"></i>Preview Checklist Operasional</h5></div>
+<div class="card-body-custom"><div id="order-form-checklist-preview" class="small text-muted">Checklist akan muncul mengikuti status target dan dokumen yang sudah diisi.</div></div>
+</div>
+</div>
+<div class="col-lg-6">
+<div class="phoenix-card h-100 mb-0">
+<div class="card-header-custom"><h5><i class="fa-solid fa-clock-rotate-left me-2 text-primary"></i>Riwayat Draft / Order</h5></div>
+<div class="card-body-custom"><div id="order-form-history-preview" class="small text-muted">Riwayat perubahan akan tampil saat order sudah pernah disimpan atau draft aktif.</div></div></div>
+</div>
+</div>
+<form id="pesananForm">
+<div class="row g-3 mb-3">
+<div class="col-md-6"><div class="phoenix-card h-100 mb-0"><div class="card-header-custom"><h5><i class="fa-solid fa-building-columns me-2 text-primary"></i> 1. Instansi &amp; Pengadaan</h5></div><div class="card-body-custom row g-3"><div class="col-6"><label class="form-label">Wilayah</label><select id="order-wilayah" class="form-select searchable-dropdown"><option value="">Pilih Wilayah</option></select></div><div class="col-6"><label class="form-label">Kabupaten/Kota</label><select id="order-kabkota" class="form-select searchable-dropdown"><option value="">Pilih Kabupaten / Kota</option></select></div><div class="col-12"><label class="form-label">Instansi / Dinas</label><select id="order-instansi" class="form-select searchable-dropdown"><option value="">Pilih Instansi / Dinas</option></select></div><div class="col-6"><label class="form-label">Satuan Kerja</label><select id="order-satker" class="form-select searchable-dropdown"><option value="">Pilih Satuan Kerja</option></select></div><div class="col-6"><label class="form-label">Kode RUP</label><input class="form-control" placeholder="Kode" type="text"/></div><div class="col-12"><label class="form-label">Nama Pengadaan</label><input class="form-control" placeholder="Judul" type="text"/></div></div></div></div>
+<div class="col-md-6"><div class="phoenix-card h-100 mb-0"><div class="card-header-custom"><h5><i class="fa-solid fa-file-contract me-2 text-primary"></i> 2. Dokumen &amp; Keuangan</h5></div><div class="card-body-custom row g-3"><div class="col-12"><label class="form-label">No. Surat Pesanan / P.O</label><input class="form-control" placeholder="Nomor SP/PO" type="text"/></div><div class="col-6"><label class="form-label">Tanggal P.O</label><input class="form-control datepicker" placeholder="DD/MM/YYYY" type="text"/></div><div class="col-6"><label class="form-label">Tgl Kontrak Selesai</label><input class="form-control datepicker" placeholder="DD/MM/YYYY" type="text"/></div><div class="col-6"><label class="form-label">Sumber Dana</label><select class="form-select searchable-dropdown"><option value="">Pilih...</option><option value="1">APBN</option></select></div><div class="col-6"><label class="form-label d-block">Pajak (PPN)</label><div class="form-check form-check-inline mt-1"><input checked="" class="form-check-input" name="ppn" type="radio"/><label class="form-check-label text-custom">Termasuk PPN</label></div><div class="form-check form-check-inline"><input class="form-check-input" name="ppn" type="radio"/><label class="form-check-label text-custom">Tidak Termasuk PPN</label></div></div></div></div></div>
+<div class="col-md-6"><div class="phoenix-card h-100 mb-0"><div class="card-header-custom"><h5><i class="fa-solid fa-network-wired me-2 text-primary"></i> 3. Rantai Pasok</h5></div><div class="card-body-custom row g-3"><div class="col-6"><label class="form-label">Pelaksana</label><select class="form-select searchable-dropdown"><option value="">Cari...</option><option value="1">PT Pelaksana Alpha</option></select></div><div class="col-6"><label class="form-label">Distributor</label><select class="form-select searchable-dropdown"><option value="">Cari...</option><option value="1">PT Distribusi</option></select></div><div class="col-6"><label class="form-label">Pemasok</label><select class="form-select searchable-dropdown"><option value="">Cari...</option><option value="1">PT Pemasok</option></select></div><div class="col-6"><label class="form-label">Principal</label><select class="form-select searchable-dropdown"><option value="">Cari...</option><option value="1">Samsung Corp</option></select></div></div></div></div>
+<div class="col-md-6"><div class="phoenix-card h-100 mb-0"><div class="card-header-custom"><h5><i class="fa-solid fa-users me-2 text-primary"></i> 4. Tim &amp; Nota ERP</h5></div><div class="card-body-custom row g-3"><div class="col-6"><label class="form-label">Penggarap</label><select class="form-select searchable-dropdown"><option value="">Pilih...</option><option value="1">Budi</option></select></div><div class="col-6"><label class="form-label">PIC Omset</label><select class="form-select searchable-dropdown"><option value="">Pilih...</option><option value="1">Tim A</option></select></div><div class="col-6"><label class="form-label">No. Nota Oldist</label><input class="form-control" placeholder="No. Oldist" type="text"/></div><div class="col-6"><label class="form-label">Tgl Nota Oldist</label><input class="form-control datepicker" placeholder="DD/MM/YYYY" type="text"/></div><div class="col-6"><label class="form-label">Nota ERP</label><input class="form-control" placeholder="No. ERP" type="text"/></div><div class="col-6"><label class="form-label">Tanggal ERP</label><input class="form-control datepicker" placeholder="DD/MM/YYYY" type="text"/></div></div></div></div>
+<div class="col-md-6"><div class="phoenix-card h-100 mb-0"><div class="card-header-custom"><h5><i class="fa-solid fa-file-arrow-up me-2 text-primary"></i> 5. Dokumen Pendukung</h5></div><div class="card-body-custom row g-3"><div class="col-6"><label class="form-label">SP Inaproc</label><div class="file-drop-zone" onclick="document.getElementById('doc1').click()"><i class="fa-solid fa-cloud-arrow-up"></i><p>Pilih Dokumen</p><input class="d-none" id="doc1" type="file"/></div></div><div class="col-6"><label class="form-label">PO Pelaksana ke Dist</label><div class="file-drop-zone" onclick="document.getElementById('doc2').click()"><i class="fa-solid fa-cloud-arrow-up"></i><p>Pilih Dokumen</p><input class="d-none" id="doc2" type="file"/></div></div><div class="col-6"><label class="form-label">PO Dist ke Pemasok</label><div class="file-drop-zone" onclick="document.getElementById('doc3').click()"><i class="fa-solid fa-cloud-arrow-up"></i><p>Pilih Dokumen</p><input class="d-none" id="doc3" type="file"/></div></div><div class="col-6"><label class="form-label">PO Pem ke Principal</label><div class="file-drop-zone" onclick="document.getElementById('doc4').click()"><i class="fa-solid fa-cloud-arrow-up"></i><p>Pilih Dokumen</p><input class="d-none" id="doc4" type="file"/></div></div></div></div></div>
+<div class="col-md-6"><div class="phoenix-card h-100 mb-0"><div class="card-header-custom"><h5><i class="fa-solid fa-truck-ramp-box me-2 text-primary"></i> 6. Logistik &amp; Target Waktu</h5></div><div class="card-body-custom row g-3"><div class="col-12"><label class="form-label d-block">Tujuan Pengiriman Akhir</label><div class="form-check form-check-inline mt-1"><input checked="" class="form-check-input" name="tujuanAkhir" type="radio"/><label class="form-check-label text-custom">Dinas / Instansi</label></div><div class="form-check form-check-inline"><input class="form-check-input" name="tujuanAkhir" type="radio"/><label class="form-check-label text-custom">Sekolah / Tujuan Akhir</label></div></div><div class="col-12"><hr style="border-color: var(--border-color); margin: 0;"/></div><div class="col-12"><label class="form-label">Batas Penyiapan Barang</label><input class="form-control input-readonly" placeholder="Kalkulasi Otomatis" readonly="" type="text"/></div><div class="col-12"><label class="form-label">Batas Tiba di Tujuan Pertama</label><input class="form-control input-readonly" placeholder="Kalkulasi Otomatis" readonly="" type="text"/></div><div class="col-12"><label class="form-label">Batas Tiba di Tujuan Akhir</label><input class="form-control input-readonly" placeholder="Kalkulasi Otomatis" readonly="" type="text"/></div></div></div></div>
+</div>
+<div class="row g-3 mb-4">
+<div class="col-md-6"><div class="phoenix-card h-100 mb-0"><div class="card-header-custom"><h5><i class="fa-solid fa-calculator me-2 text-primary"></i> 7. Pengaturan Kalkulasi Rabat</h5></div><div class="card-body-custom row g-3"><div class="col-6"><label class="form-label">Basis Dasar</label><select class="form-select searchable-dropdown"><option value="">Pilih...</option><option value="cash_in">CASH IN</option><option value="dpp">DPP</option></select></div><div class="col-6"><label class="form-label">Sumber Nilai</label><select class="form-select searchable-dropdown"><option value="">Pilih...</option><option value="pagu">PAGU</option><option value="rab">HARGA RAB</option><option value="tayang">HARGA TAYANG</option><option value="kontrak">KONTRAK</option></select></div><div class="col-6"><label class="form-label">Komponen Nilai</label><select class="form-select searchable-dropdown"><option value="">Pilih...</option><option value="barang">BARANG</option><option value="barang_kirim">BARANG + BIAYA KIRIM</option></select></div><div class="col-6"><label class="form-label">Pengurang Rabat</label><select class="form-select searchable-dropdown"><option value="none">Tanpa Pengurang</option><option value="nego_barang">NEGOSIASI BARANG</option><option value="nego_barang_kirim">NEGOSIASI BARANG + BIAYA KIRIM</option></select></div></div></div></div>
+<div class="col-md-6"><div class="phoenix-card h-100 mb-0"><div class="card-header-custom"><h5><i class="fa-solid fa-globe me-2 text-primary"></i> 8. Variabel Global (Keseluruhan Item)</h5></div><div class="card-body-custom row g-3"><div class="col-12"><label class="form-label">Rabat / Discount Global (%)</label><input class="form-control" placeholder="0%" style="text-align: right;" type="text"/></div><div class="col-6"><label class="form-label">Negosiasi Global (Rp)</label><input class="form-control format-uang" placeholder="Rp 0" style="text-align: right;" type="text"/></div><div class="col-6"><label class="form-label">Biaya Kirim Global (Rp)</label><input class="form-control format-uang" placeholder="Rp 0" style="text-align: right;" type="text"/></div></div></div></div>
+</div>
+<div class="row mb-4"><div class="col-12"><div class="phoenix-card mb-0"><div class="card-header-custom d-flex justify-content-between align-items-center"><h5><i class="fa-solid fa-table-list me-2 text-primary"></i> Detail Produk &amp; Input Kalkulasi</h5><div><button class="btn btn-sm btn-outline-success me-2" data-bs-target="#importItemModal" data-bs-toggle="modal" style="background-color: var(--bg-surface);" type="button"><i class="fa-solid fa-file-excel me-1"></i> Import Item Produk</button><button class="btn btn-sm btn-primary" id="add-row-btn" type="button"><i class="fa-solid fa-plus me-1"></i> Tambah Baris</button></div></div><div class="card-body-custom p-0"><div id="product-grid"></div></div></div></div></div>
+<h5 class="mb-3 mt-4 text-custom" style="font-weight: 700;"><i class="fa-solid fa-chart-line me-2 text-primary"></i> Ringkasan Kalkulasi Dasar</h5>
+<div class="row g-3 mb-4">
+<div class="col-xl col-md-4 col-sm-6"><div class="phoenix-card h-100 mb-0"><div class="card-body-custom"><h6 class="text-muted mb-3" style="font-weight: 700;">TOTAL HPP</h6><div class="d-flex justify-content-between mb-2"><span class="text-custom">Pemasok:</span><span class="text-custom" id="sum-hpp-pem" style="font-weight: 600;">Rp 0</span></div><div class="d-flex justify-content-between mb-2"><span class="text-custom">Distributor:</span><span class="text-custom" id="sum-hpp-dis" style="font-weight: 600;">Rp 0</span></div><div class="d-flex justify-content-between"><span class="text-custom">Pelaksana:</span><span class="text-custom" id="sum-hpp-pel" style="font-weight: 600;">Rp 0</span></div></div></div></div>
+<div class="col-xl col-md-4 col-sm-6"><div class="phoenix-card h-100 mb-0"><div class="card-body-custom"><h6 class="text-muted mb-3" style="font-weight: 700;">TOTAL RAB</h6><div class="d-flex justify-content-between mb-2"><span class="text-custom">Barang:</span><span class="text-custom" id="sum-rab-brg" style="font-weight: 600;">Rp 0</span></div><div class="d-flex justify-content-between mb-2"><span class="text-custom">Biaya Kirim:</span><span class="text-custom" id="sum-rab-krm" style="font-weight: 600;">Rp 0</span></div><div class="d-flex justify-content-between pt-2 border-top"><span class="text-primary fw-bold">Tot RAB:</span><span class="text-primary fw-bold" id="sum-rab-tot">Rp 0</span></div></div></div></div>
+<div class="col-xl col-md-4 col-sm-6"><div class="phoenix-card h-100 mb-0"><div class="card-body-custom"><h6 class="text-muted mb-3" style="font-weight: 700;">TOTAL TAYANG</h6><div class="d-flex justify-content-between mb-2"><span class="text-custom">Barang:</span><span class="text-custom" id="sum-tayang-brg" style="font-weight: 600;">Rp 0</span></div><div class="d-flex justify-content-between mb-2"><span class="text-custom">Biaya Kirim:</span><span class="text-custom" id="sum-tayang-krm" style="font-weight: 600;">Rp 0</span></div><div class="d-flex justify-content-between pt-2 border-top"><span class="text-primary fw-bold">Tot Tayang:</span><span class="text-primary fw-bold" id="sum-tayang-tot">Rp 0</span></div></div></div></div>
+<div class="col-xl col-md-6 col-sm-6"><div class="phoenix-card h-100 mb-0"><div class="card-body-custom"><h6 class="text-muted mb-3" style="font-weight: 700;">TOTAL KONTRAK</h6><div class="d-flex justify-content-between mb-2"><span class="text-custom">Barang:</span><span class="text-custom" id="sum-kon-brg" style="font-weight: 600;">Rp 0</span></div><div class="d-flex justify-content-between mb-2"><span class="text-custom">Biaya Kirim:</span><span class="text-custom" id="sum-kon-krm" style="font-weight: 600;">Rp 0</span></div><div class="d-flex justify-content-between pt-2 border-top"><span class="text-primary fw-bold">Tot Kontrak:</span><span class="text-primary fw-bold" id="sum-kon-tot">Rp 0</span></div></div></div></div>
+<div class="col-xl col-md-6 col-sm-6"><div class="phoenix-card h-100 mb-0"><div class="card-body-custom"><h6 class="text-muted mb-3" style="font-weight: 700;">TOTAL NEGOSIASI</h6><div class="d-flex justify-content-between mb-2"><span class="text-custom">Barang:</span><span class="text-custom" id="sum-nego-brg" style="font-weight: 600;">Rp 0</span></div><div class="d-flex justify-content-between mb-2"><span class="text-custom">Biaya Kirim:</span><span class="text-custom" id="sum-nego-krm" style="font-weight: 600;">Rp 0</span></div><div class="d-flex justify-content-between pt-2 border-top"><span class="text-warning fw-bold">Tot Negosiasi:</span><span class="text-warning fw-bold" id="sum-nego-tot">Rp 0</span></div></div></div></div>
+</div>
+<h5 class="mb-3 mt-4 text-custom" style="font-weight: 700;"><i class="fa-solid fa-tags me-2 text-success"></i> Ringkasan Kalkulasi Rabat / Discount</h5>
+<div class="row g-3 mb-5">
+<div class="col-xl-3 col-md-6"><div class="phoenix-card h-100 mb-0"><div class="card-body-custom"><h6 class="text-muted mb-3" style="font-weight: 700;">RABAT PELAKSANA</h6><h3 class="mb-1 text-primary" id="pct-pel">0%</h3><p class="text-muted mb-0" id="rp-pel" style="font-size: 0.9rem;">Rp 0</p></div></div></div>
+<div class="col-xl-3 col-md-6"><div class="phoenix-card h-100 mb-0"><div class="card-body-custom"><h6 class="text-muted mb-3" style="font-weight: 700;">RABAT DISTRIBUTOR</h6><h3 class="mb-1 text-primary" id="pct-dis">0%</h3><p class="text-muted mb-0" id="rp-dis" style="font-size: 0.9rem;">Rp 0</p></div></div></div>
+<div class="col-xl-3 col-md-6"><div class="phoenix-card h-100 mb-0"><div class="card-body-custom"><h6 class="text-muted mb-3" style="font-weight: 700;">RABAT PEMASOK</h6><h3 class="mb-1 text-primary" id="pct-pem">0%</h3><p class="text-muted mb-0" id="rp-pem" style="font-size: 0.9rem;">Rp 0</p></div></div></div>
+<div class="col-xl-3 col-md-6"><div class="phoenix-card h-100 mb-0 border-success"><div class="card-body-custom bg-success-subtle rounded text-center"><h6 class="text-success mb-3" style="font-weight: 700;">RABAT KESELURUHAN</h6><h3 class="mb-1 text-success" id="pct-tot" style="font-weight: 800;">0%</h3><p class="text-success mb-0" id="rp-tot" style="font-size: 0.95rem; font-weight: 700;">Rp 0</p></div></div></div>
+</div>
+
+<div class="order-stage-section" data-order-stage="closing">
+<h5 class="mb-3 mt-4 text-custom" style="font-weight: 700;"><i class="fa-solid fa-flag-checkered me-2 text-primary"></i> Closing &amp; Status Operasional</h5>
+<div class="row g-3 mb-5">
+<div class="col-lg-7">
+<div class="phoenix-card h-100 mb-0">
+<div class="card-header-custom"><h5><i class="fa-solid fa-truck-fast me-2 text-primary"></i> 9. Status Pengiriman &amp; Serah Terima</h5></div>
+<div class="card-body-custom row g-3">
+<div class="col-md-6"><label class="form-label">Status Pengiriman</label><select class="form-select" id="input-status-pengiriman"></select></div>
+<div class="col-md-6"><label class="form-label">No. Penjualan</label><input class="form-control" id="input-sales-number" placeholder="Nomor penjualan / SO" type="text"/></div>
+<div class="col-md-6"><label class="form-label">Nomor Resi</label><input class="form-control" id="input-resi" placeholder="Nomor resi / AWB" type="text"/></div>
+<div class="col-md-6"><label class="form-label">Dokumen BAST</label><select class="form-select" id="input-doc-bast"><option value="Belum">Belum</option><option value="Sudah">Sudah</option></select></div>
+<div class="col-md-6"><label class="form-label">Tgl Aktual Dikirim</label><input class="form-control datepicker" id="input-actual-sent" placeholder="DD/MM/YYYY" type="text"/></div>
+<div class="col-md-6"><label class="form-label">Tgl Aktual Diterima</label><input class="form-control datepicker" id="input-actual-received" placeholder="DD/MM/YYYY" type="text"/></div>
+<div class="col-md-6"><label class="form-label">Nama Penerima</label><input class="form-control" id="input-receiver" placeholder="Nama penerima" type="text"/></div>
+<div class="col-md-6"><label class="form-label">Catatan Kendala</label><input class="form-control" id="input-issue-note" placeholder="Opsional" type="text"/></div>
+</div>
+</div>
+</div>
+<div class="col-lg-5">
+<div class="phoenix-card h-100 mb-0">
+<div class="card-header-custom"><h5><i class="fa-solid fa-list-check me-2 text-primary"></i> 10. Checklist Tahap Closing</h5></div>
+<div class="card-body-custom">
+<div class="small text-muted mb-3">Gunakan tahap ini saat order sudah siap dikirim, sedang dikirim, atau masuk proses serah terima.</div>
+<ul class="mb-0 ps-3 order-stage-card-note">
+<li>Untuk status <strong>Siap Kirim</strong>, dokumen rantai PO harus lengkap.</li>
+<li>Untuk status <strong>Dalam Pengiriman</strong>, isi minimal resi, tanggal kirim, dan update status pengiriman.</li>
+<li>Untuk status <strong>Selesai</strong>, isi BAST, tanggal diterima, dan nama penerima.</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+</form>
+
+<div class="action-footer order-entry-footer">
+<div class="footer-group">
+<button class="btn btn-custom-outline" id="order-stage-prev-btn" type="button"><i class="fa-solid fa-arrow-left me-2"></i>Tahap Sebelumnya</button>
+<button class="btn btn-outline-primary" id="order-stage-next-btn" type="button">Lanjut Tahap Berikutnya<i class="fa-solid fa-arrow-right ms-2"></i></button>
+</div>
+<div class="footer-group">
+<button class="btn btn-outline-secondary" id="save-draft-btn" type="button"><i class="fa-regular fa-floppy-disk me-2"></i>Simpan Draft</button>
+<button class="btn btn-custom-outline" id="cancel-order-btn" type="button">Batalkan</button>
+<button class="btn btn-primary" id="save-data-btn" type="button"><i class="fa-solid fa-floppy-disk me-2"></i>Simpan Pesanan Final</button>
+</div>
+</div>
+
+</div>
+</div>
+<div class="modal fade" id="importFullModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header border-bottom-0"><h5 class="modal-title text-custom">Import Seluruh Data (Excel)</h5><button class="btn-close" data-bs-dismiss="modal" type="button"></button></div><div class="modal-body pb-4"><div class="d-flex justify-content-between align-items-center mb-3 p-3 bg-primary-subtle rounded border border-primary-subtle"><div><h6 class="mb-1 text-primary" style="font-weight: 700; font-size: 0.9rem;"><i class="fa-solid fa-circle-info me-1"></i> Format Diperlukan</h6><p class="text-muted mb-0" style="font-size: 0.8rem;">Gunakan format template agar form terisi otomatis.</p></div><a class="btn btn-sm btn-primary text-nowrap" data-import-template-target="orders" href="#"><i class="fa-solid fa-download me-1"></i> Unduh Template</a></div><div class="excel-drop-zone mt-3"><i class="fa-solid fa-cloud-arrow-up"></i><h6 class="text-custom">Tarik &amp; Lepas File Excel di Sini</h6><input accept=".xlsx, .xls, .csv" id="excelFullFile" style="display: none;" type="file"/><button class="btn btn-outline-primary btn-sm mt-2" onclick="document.getElementById('excelFullFile').click()">Telusuri File</button></div></div></div></div></div>
+<div class="modal fade" id="importItemModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header border-bottom-0"><h5 class="modal-title text-custom">Import Item Produk (Excel)</h5><button class="btn-close" data-bs-dismiss="modal" type="button"></button></div><div class="modal-body pb-4"><div class="d-flex justify-content-between align-items-center mb-3 p-3 bg-success-subtle rounded border border-success-subtle"><div><h6 class="mb-1 text-success" style="font-weight: 700; font-size: 0.9rem;"><i class="fa-solid fa-table me-1"></i> Template Tabel</h6><p class="text-muted mb-0" style="font-size: 0.8rem;">Gunakan template ini khusus untuk ratusan baris item.</p></div><a class="btn btn-sm btn-success text-nowrap" data-import-template-target="order_items" href="#"><i class="fa-solid fa-download me-1"></i> Unduh Template</a></div><div class="excel-drop-zone mt-3"><i class="fa-solid fa-file-excel"></i><h6 class="text-custom">Tarik &amp; Lepas File Excel di Sini</h6><input accept=".xlsx, .xls, .csv" id="excelItemFile" style="display: none;" type="file"/><button class="btn btn-outline-primary btn-sm mt-2" onclick="document.getElementById('excelItemFile').click()">Telusuri File</button></div></div></div></div></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script> <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script> <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script> <script src="https://unpkg.com/tabulator-tables@5.5.2/dist/js/tabulator.min.js"></script> <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <script src="assets/js/shared/feedback-ui.js"></script>
+<script src="assets/js/shared/api-bridge.js"></script>
+    <script src="assets/js/shared/auth-ui.js"></script>
+    <script src="assets/js/shared/ops-backup.js"></script>
+<script src="assets/js/shared/master-normalizer.js"></script>
+<script src="assets/js/shared/master-data-service.js"></script>
+<script src="assets/js/shared/import-center.js"></script> <script src="assets/js/script.js"></script>
+<script src="assets/js/shared/status-dictionary.js"></script>
+<script src="assets/js/shared/order-workflow.js"></script>
+<script src="assets/js/pages/funnel-pipeline.js"></script>
+<script src="assets/js/shared/ui-polish.js"></script>
+</body></html>

@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Funnel - DataSystem</title>
+    <script>const savedTheme = localStorage.getItem('theme') || 'light'; document.documentElement.setAttribute('data-theme', savedTheme);</script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link href="https://unpkg.com/tabulator-tables@5.5.2/dist/css/tabulator.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/styles.css">
+
+    <style>
+        /* Hapus bar/filter putih yang muncul di header kolom ID Funnel pada mode gelap */
+        #funnel-daftar-grid .tabulator-header-filter,
+        #funnel-daftar-grid .tabulator-header-filter input,
+        #funnel-daftar-grid .tabulator-header-filter textarea,
+        #funnel-daftar-grid .tabulator-header-filter select {
+            display: none !important;
+            height: 0 !important;
+            min-height: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            border: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+        #funnel-daftar-grid .tabulator-col .tabulator-col-content {
+            padding-bottom: 8px !important;
+        }
+        .funnel-filter-toolbar {
+            display: grid;
+            grid-template-columns: minmax(260px, 1.35fr) repeat(5, minmax(0, 1fr));
+            gap: 1rem;
+            align-items: end;
+            width: 100%;
+        }
+        .funnel-filter-toolbar .filter-field {
+            min-width: 0;
+        }
+        .funnel-filter-toolbar .form-control,
+        .funnel-filter-toolbar .form-select {
+            width: 100%;
+        }
+        @media (max-width: 1399.98px) {
+            .funnel-filter-toolbar {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+            .funnel-filter-toolbar .filter-search {
+                grid-column: 1 / -1;
+            }
+        }
+        @media (max-width: 767.98px) {
+            .funnel-filter-toolbar {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+        @media (max-width: 575.98px) {
+            .funnel-filter-toolbar {
+                grid-template-columns: 1fr;
+            }
+        }
+        #convert-existing-table .tabulator-row.tabulator-selected .tabulator-cell {
+            background: rgba(44, 123, 229, 0.16) !important;
+        }
+        #convert-existing-table .tabulator-row {
+            cursor: pointer;
+        }
+        #convert-existing-table .tabulator-col[tabulator-field="pick"] {
+            border-right: 1px solid rgba(160, 174, 192, 0.38) !important;
+        }
+        #convert-existing-table .tabulator-col[tabulator-field="pick"] .tabulator-col-title,
+        #convert-existing-table .tabulator-cell[data-field="pick"] {
+            padding-left: 0.4rem;
+            padding-right: 0.4rem;
+            text-align: center;
+        }
+        #convert-existing-table .tabulator-col[tabulator-field="pick"] .tabulator-col-title {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            white-space: nowrap;
+        }
+        #convert-existing-table .tabulator-cell[data-field="pick"] {
+            border-right: 1px solid rgba(160, 174, 192, 0.28) !important;
+        }
+        #convert-existing-table .convert-order-checkbox {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 1.05rem;
+            height: 1.05rem;
+            margin-top: 0;
+            border-radius: 0.34rem;
+            border: 2px solid #2c7be5 !important;
+            background-color: #ffffff !important;
+            background-image: none !important;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: 0.72rem 0.72rem;
+            box-shadow: 0 0 0 1px rgba(44, 123, 229, 0.18) !important;
+            cursor: pointer;
+            opacity: 1 !important;
+            transition: border-color 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease, transform 0.12s ease;
+        }
+        [data-theme="dark"] #convert-existing-table .tabulator-col[tabulator-field="pick"] {
+            border-right-color: rgba(110, 138, 180, 0.55) !important;
+        }
+        [data-theme="dark"] #convert-existing-table .tabulator-cell[data-field="pick"] {
+            border-right-color: rgba(110, 138, 180, 0.4) !important;
+        }
+        [data-theme="dark"] #convert-existing-table .convert-order-checkbox {
+            border-color: #ffffff !important;
+            background-color: rgba(11, 18, 37, 0.96) !important;
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12) !important;
+        }
+        #convert-existing-table .convert-order-checkbox:hover {
+            border-color: #2563eb !important;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14) !important;
+        }
+        #convert-existing-table .convert-order-checkbox:focus,
+        #convert-existing-table .convert-order-checkbox:focus-visible {
+            outline: none;
+            border-color: #1d4ed8 !important;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2) !important;
+        }
+        #convert-existing-table .convert-order-checkbox:active {
+            transform: scale(0.96);
+        }
+        #convert-existing-table .convert-order-checkbox:checked {
+            border-color: #1e3a8a !important;
+            background-color: #1e3a8a !important;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2.6' d='M3 8.5l3.1 3L13 4.8'/%3E%3C/svg%3E") !important;
+            box-shadow: 0 0 0 1px rgba(30, 58, 138, 0.16), 0 0 0 3px rgba(30, 58, 138, 0.18) !important;
+        }
+        #convert-existing-table .convert-order-checkbox:checked:hover,
+        #convert-existing-table .convert-order-checkbox:checked:focus,
+        #convert-existing-table .convert-order-checkbox:checked:focus-visible {
+            border-color: #1e40af !important;
+            background-color: #1e40af !important;
+            box-shadow: 0 0 0 1px rgba(30, 64, 175, 0.2), 0 0 0 3px rgba(30, 64, 175, 0.24) !important;
+        }
+        [data-theme="dark"] #convert-existing-table .convert-order-checkbox:checked {
+            border-color: #ffffff !important;
+            background-color: #183e78 !important;
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 0 0 3px rgba(56, 132, 255, 0.2) !important;
+        }
+        [data-theme="dark"] #convert-existing-table .convert-order-checkbox:checked:hover,
+        [data-theme="dark"] #convert-existing-table .convert-order-checkbox:checked:focus,
+        [data-theme="dark"] #convert-existing-table .convert-order-checkbox:checked:focus-visible {
+            border-color: #ffffff !important;
+            background-color: #20498a !important;
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 0 0 3px rgba(56, 132, 255, 0.26) !important;
+        }
+        .funnel-convert-modal .modal-dialog {
+            max-width: min(1580px, 96vw);
+        }
+        .audit-trail-box { max-height: 260px; overflow:auto; }
+        .convert-selected-summary {
+            border: 1px solid rgba(44, 123, 229, 0.28);
+            background: rgba(44, 123, 229, 0.08);
+            border-radius: 12px;
+            padding: 0.85rem 1rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="topbar">
+        <div class="topbar-left"><a href="index.html" class="topbar-brand"><i class="fa-solid fa-layer-group text-primary"></i><span class="brand-text">DataSystem</span></a><input type="text" class="search-box ms-4" placeholder="Cari PO / Instansi..."></div>
+        <div class="topbar-right"><button class="btn-icon" id="themeToggle"><i class="fa-solid fa-moon" id="themeIcon"></i></button><button class="btn-icon"><i class="fa-regular fa-bell"></i><span class="position-absolute top-25 start-75 translate-middle p-1 bg-danger border border-light rounded-circle"></span></button><img src="https://ui-avatars.com/api/?name=Admin+User&background=2c7be5&color=fff" class="rounded-circle" width="40" alt="Profile"></div>
+    </nav>
+	<nav class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+        <div class="sidebar-menu" id="sidebar-accordion">
+            <div class="sidebar-item-wrapper">
+                <a class="sidebar-nav-item" data-bs-toggle="collapse" href="#menuDashboard" role="button" aria-expanded="false">
+                    <div class="nav-item-left"><i class="fa-solid fa-chart-pie"></i><span class="nav-text">Dashboard</span></div>
+                    <i class="fa-solid fa-chevron-right nav-indicator"></i>
+                </a>
+                <div class="collapse" id="menuDashboard" data-bs-parent="#sidebar-accordion">
+                    <ul class="sidebar-sub-menu">
+                        <li class="sidebar-popup-header">Dashboard</li>
+                        <li><a href="funnel-dashboard.html" class="sidebar-sub-item ajax-link">Funnel</a></li>
+                        <li><a href="index.html" class="sidebar-sub-item ajax-link">Analitik Penjualan</a></li>
+                        <li><a href="logistik-sla.html" class="sidebar-sub-item ajax-link">Logistik & SLA</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="sidebar-item-wrapper mt-2">
+                <a class="sidebar-nav-item" data-bs-toggle="collapse" href="#menuInputData" role="button" aria-expanded="true">
+                    <div class="nav-item-left"><i class="fa-solid fa-folder-open"></i><span class="nav-text">Manajemen Data</span></div>
+                    <i class="fa-solid fa-chevron-right nav-indicator"></i>
+                </a>
+                <div class="collapse show" id="menuInputData" data-bs-parent="#sidebar-accordion">
+                    <ul class="sidebar-sub-menu">
+                        <li class="sidebar-popup-header">Manajemen Data</li>
+                        <li><a href="funnel-input.html" class="sidebar-sub-item ajax-link">Funnel Baru</a></li>
+                        <li><a href="funnel-daftar.html" class="sidebar-sub-item ajax-link active">Daftar Funnel</a></li>
+                        <li><a href="input-pesanan.html" class="sidebar-sub-item ajax-link">Pesanan Baru</a></li>
+                        <li><a href="data-pesanan.html" class="sidebar-sub-item ajax-link">Daftar Pesanan</a></li>
+                        <li><a href="database-master.html" class="sidebar-sub-item ajax-link">Database Master</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="sidebar-item-wrapper mt-2">
+                <a class="sidebar-nav-item" data-bs-toggle="collapse" href="#menuKalkulator" role="button" aria-expanded="false">
+                    <div class="nav-item-left"><i class="fa-solid fa-calculator"></i><span class="nav-text">Kalkulator</span></div>
+                    <i class="fa-solid fa-chevron-right nav-indicator"></i>
+                </a>
+                <div class="collapse" id="menuKalkulator" data-bs-parent="#sidebar-accordion">
+                    <ul class="sidebar-sub-menu">
+                        <li class="sidebar-popup-header">Kalkulator</li>
+                        <li><a href="kalkulator-b2b.html" class="sidebar-sub-item ajax-link">B2B (2 Layer)</a></li>
+                        <li><a href="kalkulator-distributor.html" class="sidebar-sub-item ajax-link">Distributor (3 Layer)</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="sidebar-bottom">
+        <button class="sidebar-toggle-btn" id="sidebarToggle"><i class="fa-solid fa-chevron-left"></i><span class="nav-text" id="toggleText">Kecilkan Tampilan</span></button>
+    </div>
+	</nav>
+    <div class="main-content" id="mainContent">
+<div class="container-fluid pb-4">
+
+<div id="funnelDaftarPage">
+  <div class="d-flex flex-column flex-xl-row justify-content-between align-items-xl-end gap-3 mb-4">
+    <div>
+      <h2 class="page-title">Daftar Funnel</h2>
+      <p class="page-subtitle">Monitoring seluruh peluang aktif, peluang menang/kalah, prioritas follow up, dan konversi ke pesanan.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      <a href="funnel-input.html" class="btn btn-primary"><i class="fa-solid fa-plus me-2"></i>Input Funnel</a>
+      <a href="funnel-dashboard.html" class="btn btn-outline-primary bg-surface"><i class="fa-solid fa-chart-pie me-2"></i>Dashboard Funnel</a>
+    </div>
+  </div>
+  <div class="phoenix-card mb-4">
+    <div class="card-header-custom d-flex justify-content-between align-items-center flex-wrap gap-2"><h5><i class="fa-solid fa-search me-2 text-primary"></i>Pencarian & Filter</h5><div class="d-flex gap-2 flex-wrap"><button class="btn btn-sm btn-outline-primary bg-surface" id="btnFunnelApplyQuick"><i class="fa-solid fa-filter me-2"></i>Filter</button><button class="btn btn-sm btn-outline-primary bg-surface" id="btnFunnelResetQuick"><i class="fa-solid fa-arrow-rotate-right me-2"></i>Reset</button></div></div>
+    <div class="card-body-custom"><div class="funnel-filter-toolbar">
+      <div class="filter-field filter-search"><label class="form-label">Cari Cepat</label><input class="form-control" id="funnel-search" placeholder="Cari ID Funnel / Pengadaan / Instansi / Principal / PIC..."></div>
+      <div class="filter-field"><label class="form-label">Tahap Funnel</label><select class="form-select" id="funnel-stage-filter"><option value="">Semua</option></select></div>
+      <div class="filter-field"><label class="form-label">Status Funnel</label><select class="form-select" id="funnel-status-filter"><option value="">Semua</option></select></div>
+      <div class="filter-field"><label class="form-label">Prioritas</label><select class="form-select" id="funnel-priority-filter"><option value="">Semua</option></select></div>
+      <div class="filter-field"><label class="form-label">Wilayah</label><select class="form-select" id="funnel-wilayah-filter"><option value="">Semua</option></select></div>
+      <div class="filter-field"><label class="form-label">Principal</label><select class="form-select" id="funnel-principal-filter"><option value="">Semua</option></select></div>
+    </div></div>
+  </div>
+  <div class="phoenix-card"><div class="card-header-custom d-flex justify-content-between align-items-center"><h5><i class="fa-solid fa-table-list me-2 text-primary"></i>Semua Funnel / Pipeline</h5><span class="badge bg-primary-subtle text-primary border border-primary-subtle">Siap Konversi ke Pesanan</span></div><div class="card-body-custom p-0"><div id="funnel-daftar-grid"></div></div></div>
+</div>
+
+<div class="modal fade" id="funnelDetailModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-xl modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><div><h5 class="modal-title fw-bold"><i class="fa-solid fa-file-lines me-2 text-primary"></i>Detail Funnel</h5><div class="small text-muted" id="funnel-detail-title">-</div></div><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">
+  <div class="phoenix-card mb-4"><div class="card-header-custom"><h5><i class="fa-solid fa-id-card me-2 text-primary"></i>Identitas Funnel</h5></div><div class="card-body-custom"><div class="row g-3"><div class="col-md-3"><div class="view-label">ID Funnel</div><div class="view-value" id="detail-funnel-id">-</div></div><div class="col-md-3"><div class="view-label">Tanggal Input</div><div class="view-value" id="detail-input-date">-</div></div><div class="col-md-3"><div class="view-label">Kode RUP</div><div class="view-value" id="detail-rup">-</div></div><div class="col-md-3"><div class="view-label">Sumber Peluang</div><div class="view-value" id="detail-source">-</div></div><div class="col-md-6"><div class="view-label">Nama Pengadaan</div><div class="view-value" id="detail-pengadaan">-</div></div><div class="col-md-3"><div class="view-label">Wilayah</div><div class="view-value" id="detail-wilayah">-</div></div><div class="col-md-3"><div class="view-label">Kabupaten / Kota</div><div class="view-value" id="detail-kabkota">-</div></div><div class="col-md-6"><div class="view-label">Instansi</div><div class="view-value" id="detail-instansi">-</div></div><div class="col-md-6"><div class="view-label">Satker</div><div class="view-value" id="detail-satker">-</div></div></div></div></div>
+  <div class="phoenix-card mb-4"><div class="card-header-custom"><h5><i class="fa-solid fa-users me-2 text-primary"></i>Pihak Terkait</h5></div><div class="card-body-custom"><div class="row g-3"><div class="col-md-4"><div class="view-label">Principal</div><div class="view-value" id="detail-principal">-</div></div><div class="col-md-4"><div class="view-label">Pemasok</div><div class="view-value" id="detail-pemasok">-</div></div><div class="col-md-4"><div class="view-label">Distributor</div><div class="view-value" id="detail-distributor">-</div></div><div class="col-md-4"><div class="view-label">Pelaksana</div><div class="view-value" id="detail-pelaksana">-</div></div><div class="col-md-4"><div class="view-label">PIC Omset</div><div class="view-value" id="detail-pic">-</div></div><div class="col-md-4"><div class="view-label">Penggarap</div><div class="view-value" id="detail-penggarap">-</div></div></div></div></div>
+  <div class="phoenix-card mb-4"><div class="card-header-custom"><h5><i class="fa-solid fa-sack-dollar me-2 text-primary"></i>Nilai Peluang</h5></div><div class="card-body-custom"><div class="row g-3"><div class="col-md-4"><div class="view-label">Estimasi Brutto</div><div class="view-value" id="detail-brutto">-</div></div><div class="col-md-4"><div class="view-label">Estimasi Netto</div><div class="view-value" id="detail-netto">-</div></div><div class="col-md-4"><div class="view-label">Estimasi Negosiasi</div><div class="view-value" id="detail-nego">-</div></div><div class="col-md-4"><div class="view-label">Estimasi Margin</div><div class="view-value" id="detail-margin">-</div></div><div class="col-md-4"><div class="view-label">Estimasi Qty</div><div class="view-value" id="detail-qty">-</div></div><div class="col-md-4"><div class="view-label">Converted to Order</div><div class="view-value" id="detail-converted">-</div></div></div></div></div>
+  <div class="phoenix-card mb-4"><div class="card-header-custom"><h5><i class="fa-solid fa-bars-progress me-2 text-primary"></i>Tahap & Closing</h5></div><div class="card-body-custom"><div class="row g-3"><div class="col-md-4"><div class="view-label">Tahap Funnel</div><div class="view-value" id="detail-stage">-</div></div><div class="col-md-2"><div class="view-label">Probabilitas</div><div class="view-value" id="detail-prob">-</div></div><div class="col-md-3"><div class="view-label">Target Closing</div><div class="view-value" id="detail-target">-</div></div><div class="col-md-3"><div class="view-label">Status</div><div class="view-value" id="detail-status">-</div></div><div class="col-md-4"><div class="view-label">Prioritas</div><div class="view-value" id="detail-priority">-</div></div><div class="col-md-4"><div class="view-label">Last Update</div><div class="view-value" id="detail-last-update">-</div></div></div></div></div>
+  <div class="phoenix-card mb-4"><div class="card-header-custom"><h5><i class="fa-solid fa-phone-volume me-2 text-primary"></i>Follow Up</h5></div><div class="card-body-custom"><div class="row g-3 mb-3"><div class="col-md-6"><div class="view-label">Next Action</div><div class="view-value" id="detail-follow-action">-</div></div><div class="col-md-6"><div class="view-label">Tanggal Follow Up</div><div class="view-value" id="detail-follow-date">-</div></div></div><ul class="list-group" id="funnel-followup-history"></ul></div></div><div class="phoenix-card mb-4"><div class="card-header-custom"><h5><i class="fa-solid fa-link me-2 text-primary"></i>Relasi Order & Audit Trail</h5></div><div class="card-body-custom"><div class="row g-3"><div class="col-md-4"><div class="view-label">Jumlah Order Terkait</div><div class="view-value" id="detail-related-order-count">0</div></div></div><div class="mb-3" id="detail-related-orders">-</div><div class="detail-field-card audit-trail-box"><div class="view-label">Audit Trail Funnel</div><div id="detail-funnel-audit" class="small text-muted">Belum ada audit trail.</div></div></div></div>
+  <div class="phoenix-card mb-0"><div class="card-header-custom"><h5><i class="fa-solid fa-circle-exclamation me-2 text-primary"></i>Risiko & Catatan</h5></div><div class="card-body-custom"><div class="row g-3"><div class="col-md-6"><div class="view-label">Risiko / Kendala</div><div class="view-value" id="detail-risk">-</div></div><div class="col-md-6"><div class="view-label">Catatan</div><div class="view-value" id="detail-notes">-</div></div></div></div></div>
+</div><div class="modal-footer"><button class="btn btn-outline-primary bg-surface" data-bs-dismiss="modal">Tutup</button><button class="btn btn-outline-primary bg-surface" id="btnEditFromDetail"><i class="fa-solid fa-pen-to-square me-2"></i>Update Tahap</button><button class="btn btn-primary" id="btnConvertFromDetail"><i class="fa-solid fa-arrow-right-arrow-left me-2"></i>Konversi ke Pesanan</button></div></div></div></div>
+
+<div class="modal fade" id="quickUpdateModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title"><i class="fa-solid fa-pen-to-square me-2 text-primary"></i>Update Tahap Funnel</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" id="quick-update-id"><div class="mb-3"><label class="form-label">Tahap Funnel</label><select class="form-select" id="quick-update-stage"><option>Lead Masuk</option><option>Kualifikasi</option><option>Tayang / Penawaran</option><option>Negosiasi</option><option>Menunggu Keputusan</option><option>Menang / Deal</option><option>Kalah / Batal</option></select></div><div class="mb-3"><label class="form-label">Status</label><select class="form-select" id="quick-update-status"><option>Aktif</option><option>Pending</option><option>Stagnan</option><option>Closed Won</option><option>Closed Lost</option></select></div><div class="mb-3"><label class="form-label">Next Action</label><input class="form-control" id="quick-update-action"></div></div><div class="modal-footer"><button class="btn btn-outline-primary bg-surface" data-bs-dismiss="modal">Batal</button><button class="btn btn-primary" id="saveQuickUpdate">Simpan Update</button></div></div></div></div>
+
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://unpkg.com/tabulator-tables@5.5.2/dist/js/tabulator.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="assets/js/script.js"></script>
+<script src="assets/js/shared/feedback-ui.js"></script>
+<script src="assets/js/shared/api-bridge.js"></script>
+    <script src="assets/js/shared/auth-ui.js"></script>
+    <script src="assets/js/shared/ops-backup.js"></script>
+    <script src="assets/js/shared/import-center.js"></script>
+<script src="assets/js/shared/master-normalizer.js"></script>
+<script src="assets/js/shared/status-dictionary.js"></script>
+<script src="assets/js/shared/order-workflow.js"></script>
+<script src="assets/js/pages/funnel-pipeline.js"></script>
+    <script src="assets/js/data/pesanan-dashboard-data.js"></script>
+    <script src="assets/js/pages/dashboard-data-bridge.js"></script>
+    <script src="assets/js/pages/dashboard-operasional-pesanan.js"></script>
+
+
+<div class="modal fade funnel-convert-modal" id="funnelConvertModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold"><i class="fa-solid fa-arrow-right-arrow-left me-2 text-primary"></i>Konversi Funnel ke Pesanan</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="phoenix-card mb-4">
+          <div class="card-header-custom"><h5><i class="fa-solid fa-file-circle-plus me-2 text-primary"></i>Pilih Aksi Konversi</h5></div>
+          <div class="card-body-custom">
+            <input type="hidden" id="convert-funnel-id">
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="radio" name="convert-mode" id="convert-mode-new" value="new" checked>
+              <label class="form-check-label" for="convert-mode-new">Buat Pesanan Baru dari data funnel ini</label>
+            </div>
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="radio" name="convert-mode" id="convert-mode-link" value="link">
+              <label class="form-check-label" for="convert-mode-link">Tautkan ke pesanan yang sudah diinput</label>
+            </div>
+            <div id="convert-existing-wrapper" class="mt-3" style="display:none;">
+              <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                <label class="form-label mb-0">Pilih Pesanan</label>
+                <div class="small text-muted" id="convert-existing-info">Tabel akan otomatis difilter berdasarkan penggarap funnel.</div>
+              </div>
+              <div class="row g-3 mb-3">
+                <div class="col-12 col-xl-5">
+                  <div class="input-group">
+                    <span class="input-group-text bg-surface"><i class="fa-solid fa-search text-muted"></i></span>
+                    <input type="text" class="form-control" id="convert-existing-search" placeholder="Cari No. PO / Kode RUP / Instansi / Satker / Nama Pengadaan / Wilayah / Kab/Kota / Principal / PIC / Penggarap...">
+                  </div>
+                </div>
+                <div class="col-12 col-md-4 col-xl-2">
+                  <select class="form-select" id="convert-existing-status-filter">
+                    <option value="">Semua Status</option>
+                    <option value="Baru">Baru</option>
+                    <option value="Validasi Data">Validasi Data</option>
+                    <option value="Diproses">Diproses</option>
+                    <option value="Siap Kirim">Siap Kirim</option>
+                    <option value="Dalam Pengiriman">Dalam Pengiriman</option>
+                    <option value="Selesai">Selesai</option>
+                    <option value="Bermasalah">Bermasalah</option>
+                  </select>
+                </div>
+                <div class="col-12 col-md-4 col-xl-2">
+                  <select class="form-select" id="convert-existing-wilayah-filter">
+                    <option value="">Semua Wilayah</option>
+                  </select>
+                </div>
+                <div class="col-12 col-md-6 col-xl-3">
+                  <select class="form-select" id="convert-existing-kabkota-filter">
+                    <option value="">Semua Kabupaten/Kota</option>
+                  </select>
+                </div>
+              </div>
+              <div class="convert-selected-summary d-none mb-3" id="convert-selected-order-summary">
+                <div class="small text-uppercase text-primary fw-semibold mb-1">Pesanan yang dipilih</div>
+                <div class="fw-semibold" id="convert-selected-order-text"></div>
+              </div>
+              <div id="convert-existing-table"></div>
+              <div class="small text-muted mt-2">Centang checkbox pada baris pesanan yang sesuai. Klik lagi checkbox atau baris yang sama untuk membatalkan pilihan.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-primary bg-surface" data-bs-dismiss="modal">Batal</button>
+        <button type="button" class="btn btn-primary" id="btnConfirmFunnelConvert">Konfirmasi Konversi</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/shared/ui-polish.js"></script>
+</body>
+</html>

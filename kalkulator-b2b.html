@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+
+<html data-theme="light" lang="id">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Kalkulator B2B - DataSystem</title>
+<script>const savedTheme = localStorage.getItem('theme') || 'light'; document.documentElement.setAttribute('data-theme', savedTheme);</script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="assets/css/styles.css" rel="stylesheet"/>
+<style>
+        .b2b2-table-wrap { border: 1px solid var(--border-color); border-radius: 0.75rem; overflow: hidden; background: var(--bg-surface); }
+        .b2b2-table { margin-bottom: 0; font-size: 0.86rem; vertical-align: middle; table-layout: auto; width: 100%; }
+        .b2b2-table thead th { background: var(--table-header-bg) !important; color: var(--text-main) !important; border-color: var(--border-color) !important; font-weight: 700; white-space: nowrap; vertical-align: middle; }
+        .b2b2-table tbody td { background: var(--bg-surface) !important; color: var(--text-main) !important; border-color: var(--border-color) !important; vertical-align: middle; }
+        .b2b2-table tbody tr:nth-child(even) td { background: var(--hover-bg) !important; }
+        .b2b2-table .form-control, .b2b2-table .form-select { min-width: 0; width: 100%; }
+        .b2b2-no-spinner::-webkit-outer-spin-button, .b2b2-no-spinner::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .b2b2-no-spinner[type=number] { -moz-appearance: textfield; }
+        .b2b2-static-field { min-height: 42px; border-color: var(--border-color) !important; }
+        .b2b2-money-card, .b2b2-money-hero, .b2b2-money-inline { display: inline-block; max-width: 100%; overflow-wrap: anywhere; word-break: break-word; }
+        .b2b2-money-card { display:block; width:100%; font-size: clamp(1rem, .45vw + .8rem, 1.45rem); font-weight: 800; line-height: 1.22; white-space: normal; text-align:left; }
+        .b2b2-money-hero { font-size: clamp(1rem, .85vw + .78rem, 1.18rem); font-weight: 800; line-height: 1.18; white-space: normal; }
+        .b2b2-money-inline { font-size: clamp(.85rem, .35vw + .76rem, .98rem); font-weight: 800; line-height: 1.15; white-space: nowrap; }
+        .b2b2-stat-card { display:flex; flex-direction:column; justify-content:flex-start; gap:.8rem; min-height:100%; }
+        .b2b2-stat-label { font-size:clamp(.95rem,.45vw + .78rem,1.15rem); font-weight:700; color:var(--text-muted); line-height:1.35; }
+        .b2b2-report-box { display:flex; flex-direction:column; gap:0; }
+        .b2b2-report-row { display:flex; flex-direction:column; gap:.45rem; padding:.72rem 0; border-bottom:1px solid var(--border-color); }
+        .b2b2-report-row:last-child { border-bottom:none; }
+        .b2b2-report-main { display:grid; grid-template-columns:minmax(0,1fr) minmax(140px,auto) 86px; align-items:center; column-gap:1rem; }
+        .b2b2-report-right { display:contents; min-width:0; }
+        .b2b2-report-label { font-size:.82rem; color:var(--text-muted); font-weight:700; line-height:1.35; min-width:0; }
+        .b2b2-report-pct { font-size:.76rem; color:var(--text-muted); white-space:nowrap; text-align:right; min-width:86px; }
+        .b2b2-report-value { font-weight:800; line-height:1.15; font-size:clamp(.92rem,.45vw + .76rem,1.08rem); white-space:nowrap; text-align:right; min-width:140px; }
+        .b2b2-report-row.is-highlight .b2b2-report-label,
+        .b2b2-report-row.is-highlight .b2b2-report-pct,
+        .b2b2-report-row.is-highlight .b2b2-report-value { color: var(--primary-color); }
+        .b2b2-report-row.warning-highlight .b2b2-report-label,
+        .b2b2-report-row.warning-highlight .b2b2-report-pct,
+        .b2b2-report-row.warning-highlight .b2b2-report-value { color: var(--warning-color); }
+        .b2b2-report-row.success-highlight .b2b2-report-label,
+        .b2b2-report-row.success-highlight .b2b2-report-pct,
+        .b2b2-report-row.success-highlight .b2b2-report-value { color: var(--success-color); }
+        .b2b2-report-row.danger-highlight .b2b2-report-label,
+        .b2b2-report-row.danger-highlight .b2b2-report-pct,
+        .b2b2-report-row.danger-highlight .b2b2-report-value { color: var(--danger-color); }
+        .b2b2-report-total { display:flex; flex-direction:column; gap:.35rem; padding-top:.85rem; }
+        .b2b2-report-total-main { display:grid; grid-template-columns:minmax(0,1fr) minmax(160px,auto) 92px; align-items:center; column-gap:1rem; }
+        .b2b2-report-total-label { font-size:clamp(1rem,1vw + .72rem,1.15rem); font-weight:800; line-height:1.25; min-width:0; }
+        .b2b2-report-total-value { font-size:clamp(1.08rem,.8vw + .88rem,1.55rem); font-weight:900; line-height:1.1; white-space:nowrap; text-align:right; min-width:160px; }
+        .b2b2-report-total-pct { font-size:.8rem; color:var(--text-muted); text-align:right; min-width:92px; }
+        @media (max-width: 1399.98px) {
+            .b2b2-table { font-size: 0.82rem; }
+            .b2b2-table .form-control, .b2b2-table .form-select { font-size: 0.82rem; padding: .45rem .6rem; }
+            .b2b2-money-card, .b2b2-money-hero, .b2b2-money-inline, .b2b2-report-value, .b2b2-report-total-value { white-space: normal; overflow-wrap: anywhere; word-break: break-word; }
+        }
+        @media (max-width: 1199.98px) {
+            .b2b2-report-main { grid-template-columns:minmax(0,1fr) minmax(120px,auto) 78px; }
+            .b2b2-report-total-main { grid-template-columns:minmax(0,1fr) minmax(135px,auto) 84px; }
+            .b2b2-breakdown-item { grid-template-columns:minmax(0,1fr) minmax(120px,auto) 78px; }
+        }
+        @media (max-width: 767.98px) {
+            .b2b2-report-main, .b2b2-report-total-main, .b2b2-breakdown-item { grid-template-columns:1fr; row-gap:.2rem; }
+            .b2b2-report-value, .b2b2-report-pct, .b2b2-report-total-value, .b2b2-report-total-pct, .b2b2-breakdown-value, .b2b2-breakdown-pct { text-align:left; }
+        }
+    
+        .b2b2-report-right { min-width:0; }
+        .b2b2-breakdown { display:flex; flex-direction:column; gap:0; margin-top:.55rem; padding:.55rem .85rem; border-radius:.7rem; background: color-mix(in srgb, var(--hover-bg) 70%, transparent); border:1px dashed var(--border-color); }
+        .b2b2-breakdown-item { display:grid; grid-template-columns:minmax(0,1fr) minmax(130px,auto) 82px; align-items:center; column-gap:.8rem; padding:.42rem 0; border-bottom:1px dashed color-mix(in srgb, var(--border-color) 80%, transparent); }
+        .b2b2-breakdown-item:last-child { border-bottom:none; }
+        .b2b2-breakdown-label { font-size:.78rem; color:var(--text-muted); font-weight:700; min-width:0; }
+        .b2b2-breakdown-right { display:contents; }
+        .b2b2-breakdown-value { font-size:.88rem; font-weight:800; color:var(--text-main); text-align:right; min-width:130px; white-space:nowrap; }
+        .b2b2-breakdown-pct { font-size:.74rem; color:var(--text-muted); text-align:right; min-width:82px; white-space:nowrap; }
+        .b2b2-report-grid-card { height:100%; }
+        .b2b2-report-toolbar { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:.75rem; margin-bottom:.75rem; }
+        .b2b2-report-toolbar .form-label { margin-bottom:0; font-size:.78rem; }
+        .b2b2-report-toolbar .form-select { min-width:180px; }
+
+        .b2b2-report-grid-card { display:flex; flex-direction:column; padding:1rem 1.1rem !important; border-radius:1rem !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.04); }
+        .b2b2-report-panel-primary { background: var(--primary-bg-subtle) !important; border-color: color-mix(in srgb, var(--primary-color) 22%, var(--border-color)) !important; }
+        .b2b2-report-panel-success { background: var(--success-bg-subtle) !important; border-color: color-mix(in srgb, var(--success-color) 24%, var(--border-color)) !important; }
+        .b2b2-panel-header { display:flex; flex-direction:column; gap:.55rem; margin-bottom:1rem; padding-bottom:.9rem; border-bottom:1px solid var(--border-color); }
+        .b2b2-panel-title { font-size:.86rem; font-weight:800; text-transform:uppercase; letter-spacing:.02em; margin:0; }
+        .b2b2-panel-note { font-size:.76rem; color:var(--text-muted); margin:0; }
+        .b2b2-report-toolbar { justify-content:space-between; align-items:flex-end; gap:.85rem; margin:0; }
+        .b2b2-report-toolbar .d-flex { flex-wrap:wrap; justify-content:flex-end; }
+        .b2b2-report-toolbar .form-select { min-width:170px; }
+        .b2b2-report-box { border:1px solid color-mix(in srgb, var(--border-color) 88%, transparent); border-radius:.9rem; overflow:hidden; background: color-mix(in srgb, var(--bg-surface) 94%, var(--hover-bg)); }
+        .b2b2-report-row { gap:.4rem; padding:.78rem 1rem; }
+        .b2b2-report-row:nth-child(even) { background: color-mix(in srgb, var(--hover-bg) 55%, transparent); }
+        .b2b2-report-main { grid-template-columns:minmax(0,1fr) minmax(145px, 180px) 86px; align-items:center; }
+        .b2b2-report-label { font-size:.81rem; }
+        .b2b2-report-value { min-width:145px; }
+        .b2b2-report-pct { min-width:86px; font-weight:700; }
+        .b2b2-report-total { padding:.95rem 1rem .15rem; background: color-mix(in srgb, var(--bg-surface) 82%, transparent); }
+        .b2b2-report-total-main { grid-template-columns:minmax(0,1fr) minmax(155px, 190px) 92px; }
+        .b2b2-breakdown { margin:.2rem 0 0; padding:.55rem .85rem; }
+        .b2b2-breakdown-item { grid-template-columns:minmax(0,1fr) minmax(145px, 180px) 86px; }
+        .b2b2-breakdown-value { min-width:145px; }
+        .b2b2-breakdown-pct { min-width:86px; font-weight:700; }
+        .b2b2-stat-card { gap:.55rem; }
+        .b2b2-stat-label { font-size:.9rem; }
+        @media (max-width: 1199.98px) {
+            .b2b2-report-main, .b2b2-breakdown-item { grid-template-columns:minmax(0,1fr) minmax(125px, 160px) 78px; }
+            .b2b2-report-total-main { grid-template-columns:minmax(0,1fr) minmax(135px, 170px) 82px; }
+        }
+
+</style>
+</head>
+<body>
+<nav class="topbar">
+<div class="topbar-left"><a class="topbar-brand" href="index.html"><i class="fa-solid fa-layer-group text-primary"></i><span class="brand-text">DataSystem</span></a></div>
+<div class="topbar-right"><button class="btn-icon" id="themeToggle"><i class="fa-solid fa-moon" id="themeIcon"></i></button><button class="btn-icon"><i class="fa-regular fa-bell"></i></button><img alt="Profile" class="rounded-circle" src="https://ui-avatars.com/api/?name=Admin+User&amp;background=2c7be5&amp;color=fff" width="40"/></div>
+</nav>
+<nav class="sidebar" id="sidebar">
+<div class="sidebar-top"><div class="sidebar-menu" id="sidebar-accordion">
+<div class="sidebar-item-wrapper"><a aria-expanded="false" class="sidebar-nav-item" data-bs-toggle="collapse" href="#menuDashboard" role="button"><div class="nav-item-left"><i class="fa-solid fa-chart-pie"></i><span class="nav-text">Dashboard</span></div><i class="fa-solid fa-chevron-right nav-indicator"></i></a><div class="collapse" data-bs-parent="#sidebar-accordion" id="menuDashboard"><ul class="sidebar-sub-menu"><li class="sidebar-popup-header">Dashboard</li><li><a class="sidebar-sub-item ajax-link" href="index.html">Analitik Penjualan</a></li><li><a class="sidebar-sub-item ajax-link" href="logistik-sla.html">Logistik &amp; SLA</a></li></ul></div></div>
+<div class="sidebar-item-wrapper mt-2"><a aria-expanded="false" class="sidebar-nav-item" data-bs-toggle="collapse" href="#menuInputData" role="button"><div class="nav-item-left"><i class="fa-solid fa-folder-open"></i><span class="nav-text">Manajemen Data</span></div><i class="fa-solid fa-chevron-right nav-indicator"></i></a><div class="collapse" data-bs-parent="#sidebar-accordion" id="menuInputData"><ul class="sidebar-sub-menu"><li class="sidebar-popup-header">Manajemen Data</li><li><a class="sidebar-sub-item ajax-link" href="input-pesanan.html">Pesanan Baru</a></li><li><a class="sidebar-sub-item ajax-link" href="data-pesanan.html">Daftar Pesanan</a></li><li><a class="sidebar-sub-item ajax-link" href="database-master.html">Database Master</a></li></ul></div></div>
+<div class="sidebar-item-wrapper mt-2"><a aria-expanded="true" class="sidebar-nav-item" data-bs-toggle="collapse" href="#menuKalkulator" role="button"><div class="nav-item-left"><i class="fa-solid fa-calculator"></i><span class="nav-text">Kalkulator</span></div><i class="fa-solid fa-chevron-right nav-indicator"></i></a><div class="collapse show" data-bs-parent="#sidebar-accordion" id="menuKalkulator"><ul class="sidebar-sub-menu"><li class="sidebar-popup-header">Kalkulator</li><li><a class="sidebar-sub-item ajax-link active" href="kalkulator-b2b.html">B2B (2 Layer)</a></li><li><a class="sidebar-sub-item ajax-link" href="kalkulator-distributor.html">Distributor (3 Layer)</a></li></ul></div></div>
+</div></div>
+<div class="sidebar-bottom"><button class="sidebar-toggle-btn" id="sidebarToggle"><i class="fa-solid fa-chevron-left"></i><span class="nav-text" id="toggleText">Kecilkan Tampilan</span></button></div>
+</nav>
+<div class="main-content" id="mainContent">
+<div class="container-fluid pb-5">
+<div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-3">
+<div>
+<h2 class="page-title">Kalkulator B2B (2 Layer)</h2>
+<p class="page-subtitle">Simulasi 2 layer: Pemasok <i class="fa-solid fa-arrow-right mx-1" style="font-size:0.7rem;"></i> Pelaksana <i class="fa-solid fa-arrow-right mx-1" style="font-size:0.7rem;"></i> Instansi</p>
+</div>
+<div class="d-flex gap-2">
+<button class="btn btn-outline-primary bg-surface" id="b2b2-demo-btn" type="button"><i class="fa-solid fa-flask me-2"></i>Demo Data</button>
+<button class="btn btn-outline-primary bg-surface" id="b2b2-reset-btn" type="button"><i class="fa-solid fa-rotate-left me-2"></i>Reset Nilai</button>
+</div>
+</div>
+<div class="row g-4">
+<div class="col-12">
+<div class="phoenix-card mb-4">
+<div class="card-header-custom"><h5><i class="fa-solid fa-file-invoice-dollar me-2 text-primary"></i> 1. Dokumen Dasar &amp; Pajak</h5></div>
+<div class="card-body-custom row g-3">
+<div class="col-md-3">
+<label class="form-label">Mode Pajak</label>
+<select class="form-select b2b2-input" id="b2b2-tax-mode">
+<option value="PPN">PPN</option>
+<option value="NON PPN">NON PPN</option>
+</select>
+</div>
+<div class="col-md-3">
+<label class="form-label">Total Qty</label>
+<input class="form-control b2b2-input b2b2-qty b2b2-no-spinner" id="b2b2-qty" inputmode="numeric" type="text" value="1"/>
+</div>
+<div class="col-md-6">
+<label class="form-label">Pagu</label>
+<input class="form-control b2b2-input b2b2-currency" id="b2b2-pagu" placeholder="Rp 0" type="text"/>
+</div>
+<div class="col-md-3"><label class="form-label">Kontrak Barang (Satuan)</label><input class="form-control b2b2-input b2b2-currency" id="b2b2-kontrak-barang" placeholder="Rp 0" type="text"/></div>
+<div class="col-md-3"><label class="form-label">Kontrak Ongkir (Satuan)</label><input class="form-control b2b2-input b2b2-currency" id="b2b2-kontrak-ongkir" placeholder="Rp 0" type="text"/></div>
+<div class="col-md-3"><label class="form-label text-warning">Nego Barang (Satuan)</label><input class="form-control b2b2-input b2b2-currency border-warning" id="b2b2-nego-barang" placeholder="Rp 0" type="text"/></div>
+<div class="col-md-3"><label class="form-label text-warning">Nego Ongkir (Satuan)</label><input class="form-control b2b2-input b2b2-currency border-warning" id="b2b2-nego-ongkir" placeholder="Rp 0" type="text"/></div>
+<div class="col-md-6"><label class="form-label">Tayang Barang (Satuan)</label><input class="form-control b2b2-input b2b2-currency" id="b2b2-tayang-barang" placeholder="Rp 0" type="text"/></div>
+<div class="col-md-6"><label class="form-label">Tayang Ongkir (Satuan)</label><input class="form-control b2b2-input b2b2-currency" id="b2b2-tayang-ongkir" placeholder="Rp 0" type="text"/></div>
+<div class="col-md-4">
+<div class="px-3 py-3 bg-hover rounded border h-100 b2b2-stat-card">
+<div class="b2b2-stat-label">Total Kontrak</div>
+<div class="text-primary b2b2-money-card" id="b2b2-total-kontrak">Rp 0</div>
+</div>
+</div>
+<div class="col-md-4">
+<div class="px-3 py-3 bg-hover rounded border h-100 b2b2-stat-card">
+<div class="b2b2-stat-label">Nilai Nego</div>
+<div class="text-warning b2b2-money-card" id="b2b2-total-nego">Rp 0</div>
+</div>
+</div>
+<div class="col-md-4">
+<div class="px-3 py-3 bg-hover rounded border h-100 b2b2-stat-card">
+<div class="b2b2-stat-label">Total Tayang</div>
+<div class="text-success b2b2-money-card" id="b2b2-total-tayang">Rp 0</div>
+</div>
+</div>
+</div>
+</div>
+<div class="phoenix-card mb-4">
+<div class="card-header-custom"><h5><i class="fa-solid fa-industry me-2 text-success"></i> 2. Layer Pemasok (Pemasok ➔ Jual ke Pelaksana)</h5></div>
+<div class="card-body-custom row g-3">
+<div class="col-md-6">
+<label class="form-label">HPP Pemasok (Satuan)</label>
+<input class="form-control b2b2-input b2b2-currency" id="b2b2-hpp-pemasok" placeholder="Rp 0" type="text"/>
+</div>
+<div class="col-md-3">
+<label class="form-label">Status Pajak</label>
+<select class="form-select b2b2-input" id="b2b2-principal-tax">
+<option value="Include">Include</option>
+<option value="Exclude">Exclude</option>
+</select>
+</div>
+<div class="col-md-3">
+<label class="form-label">Pembulatan</label>
+<input class="form-control b2b2-input b2b2-no-spinner" id="b2b2-principal-round" min="1" type="number" value="100"/>
+</div>
+<div class="col-md-4">
+<label class="form-label">Basis Biaya Pemasok</label>
+<select class="form-select b2b2-input" id="b2b2-principal-basis">
+<option value="HPP">HPP</option>
+<option value="JUAL KE PELAKSANA">JUAL KE PELAKSANA</option>
+<option value="TAYANG">TAYANG</option>
+</select>
+</div>
+<div class="col-md-8">
+<div class="row g-2">
+<div class="col-md-4"><label class="form-label">Biaya Kirim (%)</label><input class="form-control b2b2-input b2b2-no-spinner" id="b2b2-principal-bk" step="0.001" type="number" value="0"/></div>
+<div class="col-md-4"><label class="form-label">FM / BSR (%)</label><input class="form-control b2b2-input b2b2-no-spinner" id="b2b2-principal-fm" step="0.001" type="number" value="0"/></div>
+<div class="col-md-4"><label class="form-label">Laba Pemasok (%)</label><input class="form-control b2b2-input b2b2-no-spinner" id="b2b2-principal-profit" step="0.001" type="number" value="10"/></div>
+</div>
+</div>
+<div class="col-12 pt-1">
+<div class="d-flex justify-content-between px-3 py-3 bg-success-subtle rounded border border-success-subtle">
+<span class="text-success fw-bold mt-1"><i class="fa-solid fa-arrow-turn-down me-2"></i>Harga Jual ke Pelaksana</span>
+<span class="text-success fw-bold fs-5 b2b2-money-hero" id="b2b2-principal-sell">Rp 0</span>
+</div>
+</div>
+</div>
+</div>
+<div class="phoenix-card mb-4">
+<div class="card-header-custom d-flex justify-content-between align-items-center flex-wrap gap-2">
+<h5><i class="fa-solid fa-gears me-2 text-primary"></i> 3. Pelaksana / Pengurang Negosiasi</h5>
+<button class="btn btn-sm btn-primary" id="b2b2-add-fee-row" type="button"><i class="fa-solid fa-plus me-1"></i>Tambah Baris</button>
+</div>
+<div class="card-body-custom row g-3">
+
+<div class="col-md-6">
+<label class="form-label">Restitusi Pajak (%)</label>
+<input class="form-control b2b2-input b2b2-no-spinner" id="b2b2-restitusi" step="0.001" type="number" value="100"/>
+</div>
+<div class="col-12 mt-2">
+<div class="b2b2-table-wrap">
+<div class="table-responsive">
+<table class="table b2b2-table">
+<thead>
+<tr>
+<th style="min-width:170px; width:22%;">Nama Biaya</th>
+<th style="min-width:88px; width:10%;">%</th>
+<th style="min-width:180px; width:22%;">Pengali</th>
+<th style="min-width:130px; width:14%;">Basis</th>
+<th style="min-width:90px; width:10%;">- Nego</th>
+<th style="min-width:150px; width:15%;">Nilai</th>
+<th style="min-width:72px; width:7%;"></th>
+</tr>
+</thead>
+<tbody id="b2b2-fee-body"></tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="phoenix-card mb-4">
+<div class="card-header-custom"><h5><i class="fa-solid fa-arrows-down-to-line me-2 text-primary"></i> 4. Ringkasan Antar Layer</h5></div>
+<div class="card-body-custom row g-3">
+<div class="col-md-3">
+<div class="px-3 py-3 bg-primary-subtle rounded border border-primary-subtle h-100 b2b2-stat-card">
+<div class="b2b2-stat-label">Pagu</div>
+<div class="text-primary b2b2-money-card" id="b2b2-summary-pagu">Rp 0</div>
+</div>
+</div>
+<div class="col-md-3">
+<div class="px-3 py-3 bg-success-subtle rounded border border-success-subtle h-100 b2b2-stat-card">
+<div class="b2b2-stat-label">Jual ke Pelaksana</div>
+<div class="text-success b2b2-money-card" id="b2b2-summary-sell">Rp 0</div>
+</div>
+</div>
+<div class="col-md-3">
+<div class="px-3 py-3 bg-warning-subtle rounded border border-warning-subtle h-100 b2b2-stat-card">
+<div class="b2b2-stat-label">Saldo Akhir Pemasok</div>
+<div class="text-warning b2b2-money-card" id="b2b2-summary-saldo-pemasok">Rp 0</div>
+</div>
+</div>
+<div class="col-md-3">
+<div class="px-3 py-3 bg-primary-subtle rounded border border-primary-subtle h-100 b2b2-stat-card">
+<div class="b2b2-stat-label">Saldo Akhir Pelaksana</div>
+<div class="text-primary b2b2-money-card" id="b2b2-summary-saldo-pelaksana">Rp 0</div>
+</div>
+</div>
+</div>
+</div>
+<div class="phoenix-card mb-0 bg-surface border-border-color">
+<div class="card-header-custom bg-table-header-bg border-bottom">
+<h5 class="text-custom fw-bold mb-0"><i class="fa-solid fa-receipt text-primary me-2"></i> Laporan Cash Flow Laba/Rugi</h5>
+</div>
+<div class="card-body-custom pt-4">
+<div class="row g-4">
+<div class="col-12 col-xl-6">
+<div class="p-3 bg-primary-subtle rounded border border-primary-subtle h-100 b2b2-report-grid-card b2b2-report-panel-primary">
+<div class="b2b2-panel-header">
+<div class="b2b2-panel-title text-primary">A. Cash Flow Pelaksana</div>
+<div class="b2b2-report-toolbar">
+<div class="b2b2-panel-note" id="b2b2-note-pelaksana-basis">Basis persen mengikuti acuan cash in.</div>
+<div class="d-flex align-items-center gap-2">
+<label class="form-label text-muted fw-bold">Acuan Cash In</label>
+<select class="form-select form-select-sm b2b2-input" id="b2b2-cashin-basis">
+<option value="KONTRAK">KONTRAK</option>
+<option value="BARANG">BARANG</option>
+<option value="TOTAL">TOTAL</option>
+</select>
+</div>
+</div>
+</div>
+<div class="b2b2-report-box">
+<div class="b2b2-report-row"><div class="b2b2-report-main"><span class="b2b2-report-label">Nilai Kontrak Barang</span><div class="b2b2-report-right"><div class="text-custom b2b2-report-value" id="b2b2-res-kontrak-barang">Rp 0</div><span class="b2b2-report-pct" id="b2b2-pct-kontrak-barang">0,00%</span></div></div></div>
+<div class="b2b2-report-row"><div class="b2b2-report-main"><span class="b2b2-report-label">Nilai Kontrak Biaya Kirim</span><div class="b2b2-report-right"><div class="text-custom b2b2-report-value" id="b2b2-res-kontrak-ongkir">Rp 0</div><span class="b2b2-report-pct" id="b2b2-pct-kontrak-ongkir">0,00%</span></div></div></div>
+<div class="b2b2-report-row is-highlight"><div class="b2b2-report-main"><span class="b2b2-report-label">Nilai Total Kontrak</span><div class="b2b2-report-right"><div class="b2b2-report-value text-primary" id="b2b2-res-total-kontrak-report">Rp 0</div><span class="b2b2-report-pct" id="b2b2-pct-total-kontrak-report">0,00%</span></div></div></div>
+<div class="b2b2-report-row mt-2 pt-2 border-top border-primary"><div class="b2b2-report-main"><span class="b2b2-report-label">Cash In (SP2D)</span><div class="b2b2-report-right"><div class="text-custom b2b2-report-value" id="b2b2-res-sp2d-pel">Rp 0</div><span class="b2b2-report-pct" id="b2b2-pct-sp2d-pel">0,00%</span></div></div></div>
+<div class="b2b2-report-row danger-highlight"><div class="b2b2-report-main"><span class="b2b2-report-label">Cash Out</span><div class="b2b2-report-right"><div class="b2b2-report-value" id="b2b2-res-cashout-pel">- Rp 0</div><span class="b2b2-report-pct" id="b2b2-pct-cashout-pel">0,00%</span></div></div><div class="b2b2-breakdown" id="b2b2-cashout-breakdown"></div></div>
+<div class="b2b2-report-row"><div class="b2b2-report-main"><span class="b2b2-report-label">Saldo Kas</span><div class="b2b2-report-right"><div class="text-custom b2b2-report-value" id="b2b2-res-saldo-kas-pel">Rp 0</div><span class="b2b2-report-pct" id="b2b2-pct-saldo-kas-pel">0,00%</span></div></div></div>
+<div class="b2b2-report-row success-highlight"><div class="b2b2-report-main"><span class="b2b2-report-label">Restitusi</span><div class="b2b2-report-right"><div class="b2b2-report-value text-success" id="b2b2-res-restitusi-pel">+ Rp 0</div><span class="b2b2-report-pct" id="b2b2-pct-restitusi-pel">0,00%</span></div></div></div>
+<div class="b2b2-report-row success-highlight"><div class="b2b2-report-main"><span class="b2b2-report-label">Saldo Kas + Restitusi</span><div class="b2b2-report-right"><div class="b2b2-report-value text-success" id="b2b2-res-saldo-plus-restitusi-pel">Rp 0</div><span class="b2b2-report-pct" id="b2b2-pct-saldo-plus-restitusi-pel">0,00%</span></div></div></div>
+<div class="b2b2-report-row danger-highlight"><div class="b2b2-report-main"><span class="b2b2-report-label" id="b2b2-pph29-label">Kredit / Lebih Bayar PPh</span><div class="b2b2-report-right"><div class="b2b2-report-value" id="b2b2-res-pph29-pel">- Rp 0</div><span class="b2b2-report-pct" id="b2b2-pct-pph29-pel">0,00%</span></div></div></div>
+<div class="b2b2-report-total mt-2 pt-2 border-top border-primary"><div class="b2b2-report-total-main"><div class="b2b2-report-total-label text-primary">Saldo Akhir Pelaksana</div><div class="b2b2-report-right"><div class="b2b2-report-total-value text-primary" id="b2b2-res-saldo-pel">Rp 0</div><div class="b2b2-report-total-pct" id="b2b2-pct-saldo-pel">0,00%</div></div></div></div>
+</div>
+</div>
+</div>
+<div class="col-12 col-xl-6">
+<div class="p-3 bg-success-subtle rounded border border-success-subtle h-100 b2b2-report-grid-card b2b2-report-panel-success">
+<div class="b2b2-panel-header">
+<div class="b2b2-panel-title text-success">B. Aliran Dana Pemasok</div>
+<div class="b2b2-panel-note" id="b2b2-note-pemasok-basis">Basis persen mengikuti pengaturan basis pemasok.</div>
+</div>
+<div class="b2b2-report-box">
+<div class="b2b2-report-row"><div class="b2b2-report-main"><span class="b2b2-report-label">Harga Jual ke Pelaksana</span><div class="b2b2-report-right"><div class="text-custom b2b2-report-value" id="b2b2-res-cashin-principal">Rp 0</div><span class="b2b2-report-pct" id="b2b2-pct-cashin-principal">0,00%</span></div></div></div>
+<div class="b2b2-report-row danger-highlight"><div class="b2b2-report-main"><span class="b2b2-report-label">Modal Pemasok</span><div class="b2b2-report-right"><div class="b2b2-report-value" id="b2b2-res-hpp-principal">- Rp 0</div><span class="b2b2-report-pct" id="b2b2-pct-hpp-principal">0,00%</span></div></div></div>
+<div class="b2b2-report-row success-highlight mt-2 pt-2 border-top border-success"><div class="b2b2-report-main"><span class="b2b2-report-label">Laba Kotor Pemasok</span><div class="b2b2-report-right"><div class="b2b2-report-value text-success" id="b2b2-res-laba-principal">Rp 0</div><span class="b2b2-report-pct" id="b2b2-pct-laba-principal">0,00%</span></div></div></div>
+<div class="b2b2-report-row danger-highlight"><div class="b2b2-report-main"><span class="b2b2-report-label">PPh Badan 22%</span><div class="b2b2-report-right"><div class="b2b2-report-value" id="b2b2-res-pph-badan-principal">- Rp 0</div><span class="b2b2-report-pct" id="b2b2-pct-pph-badan-principal">0,00%</span></div></div></div>
+<div class="b2b2-report-total mt-2 pt-2 border-top border-success"><div class="b2b2-report-total-main"><div class="b2b2-report-total-label text-success">Saldo Akhir Pemasok</div><div class="b2b2-report-right"><div class="b2b2-report-total-value text-success" id="b2b2-res-saldo-principal">Rp 0</div><div class="b2b2-report-total-pct" id="b2b2-pct-saldo-principal">0,00%</div></div></div></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/script.js"></script>
+<script src="assets/js/shared/feedback-ui.js"></script>
+<script src="assets/js/pages/kalkulator-b2b-advanced.js"></script>
+<script src="assets/js/shared/ui-polish.js"></script>
+</body>
+</html>
