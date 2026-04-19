@@ -14,10 +14,21 @@
   }
 
   function setQueryValue(value, targetPage) {
-    const url = new URL(targetPage || window.location.href, window.location.origin);
-    if (value) url.searchParams.set('q', value);
-    else url.searchParams.delete('q');
-    return url.pathname.split('/').pop() + (url.search ? url.search : '');
+    const query = String(value || '').trim();
+    const fallbackTarget = String(targetPage || getPage() || 'index.html').split('#')[0] || 'index.html';
+    try {
+      const currentHref = String(window.location?.href || '');
+      const safeBase = /^(https?:|file:)/i.test(currentHref)
+        ? currentHref
+        : 'https://app.local/' + fallbackTarget.replace(/^\.\//, '');
+      const url = new URL(targetPage || safeBase, safeBase);
+      if (query) url.searchParams.set('q', query);
+      else url.searchParams.delete('q');
+      const filename = url.pathname.split('/').pop() || fallbackTarget.split('?')[0];
+      return filename + (url.search ? url.search : '');
+    } catch (_error) {
+      return query ? fallbackTarget + '?q=' + encodeURIComponent(query) : fallbackTarget;
+    }
   }
 
   function dispatchInput(node) {

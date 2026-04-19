@@ -996,8 +996,15 @@
     }
     data.unshift(record); saveRecords(data);
     getBridge()?.upsertOne?.('funnels', record).catch(() => {});
-    if (openDetail) window.DataSystemNavigation?.navigate?.('funnel-daftar.html') || (window.location.href = 'funnel-daftar.html');
-    else getFeedback()?.toast?.('Funnel berhasil disimpan.', 'success') || alert('Funnel berhasil disimpan.');
+    if (openDetail) {
+      let handled = false;
+      try {
+        handled = !!window.DataSystemNavigation?.navigate?.('funnel-daftar.html');
+      } catch (_error) {
+        handled = false;
+      }
+      if (!handled) window.location.href = 'funnel-daftar.html';
+    } else getFeedback()?.toast?.('Funnel berhasil disimpan.', 'success') || alert('Funnel berhasil disimpan.');
   }
 
   function initConvertModal() {
